@@ -13,15 +13,15 @@ export async function getCurso(id: String) {
 }
 
 export async function addCurso(curso: CursoDTO) {
-    const query = 'INSERT INTO curso (nome, duracao, imagem) VALUES ($1, $2, $3) RETURNING *'
-    const values = [curso.nome, curso.duracao, curso.imagem]
+    const query = 'INSERT INTO curso (nome, imagem) VALUES ($1, $2) RETURNING *'
+    const values = [curso.nome, curso.imagem]
     const result = await pool.query(query, values)
     return result.rows[0]
 }
 
 export async function updateCurso(id: String, updatedCurso: CursoDTO) {
-    const query = 'UPDATE curso SET nome = $1, duracao = $2, imagem = $3 WHERE id = $4'
-    const values = [updatedCurso.nome, updatedCurso.duracao, updatedCurso.imagem, id]
+    const query = 'UPDATE curso SET nome = $1, imagem = $2 WHERE id = $3'
+    const values = [updatedCurso.nome, updatedCurso.imagem, id]
     const result = await pool.query(query, values)
     return result.rowCount > 0
 }

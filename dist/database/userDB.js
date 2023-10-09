@@ -61,7 +61,7 @@ function getLoginEmail(email, senha) {
     return __awaiter(this, void 0, void 0, function* () {
         const query = 'SELECT * FROM usuario WHERE email = $1 AND senha = $2';
         const result = yield index_1.default.query(query, [email, senha]);
-        return result.rowCount > 0;
+        return result.rows[0];
     });
 }
 exports.getLoginEmail = getLoginEmail;
@@ -69,7 +69,7 @@ function getLogin(login, senha) {
     return __awaiter(this, void 0, void 0, function* () {
         const query = 'SELECT * FROM usuario WHERE login = $1 AND senha = $2';
         const result = yield index_1.default.query(query, [login, senha]);
-        return result.rowCount > 0;
+        return result.rows[0];
     });
 }
 exports.getLogin = getLogin;
