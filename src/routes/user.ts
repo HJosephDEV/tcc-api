@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import UserDTO from '../dto/userDTO';
-import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail } from '../database/userDB'
+import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail, updateVidas } from '../database/userDB'
 import { gerarToken, verificarToken } from '../middleware/auth';
 
 const router: IRouter = express.Router();
@@ -139,6 +139,25 @@ router.put('/usuario/unblock', express.json(), async (req, res) => {
                 res.status(404).json({message: 'Usuário já desbloqueado ou não encontrado'})
             }
         }else {
+            res.status(500).json({message: 'Código de usuário não informado'})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
+    }
+})
+
+router.put('/usuario/restaurar-vida', express.json(), async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if(verificacao) { 
+        const id = verificacao['id']
+        if(id != undefined){
+            const result = await updateVidas(id!.toString(), 1)
+            if(result){
+                res.status(201).json({message: 'Vida restaurada'})
+            }else{
+                res.status(500).json({message: 'Vida não foi restaurada'})
+            }
+        } else {
             res.status(500).json({message: 'Código de usuário não informado'})
         }
     } else {

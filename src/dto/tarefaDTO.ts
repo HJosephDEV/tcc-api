@@ -6,7 +6,7 @@ class TarefaDTO{
         public nome:String,
         public conteudo:String,
         public tipo:number,
-        public exp:number,
+        public tarefa_exp:number,
         public idModulo: String,
         public respostas: RespostaDTO[]
     ){}

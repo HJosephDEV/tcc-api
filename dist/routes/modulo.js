@@ -14,6 +14,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const moduloDB_1 = require("../database/moduloDB");
+const tarefaDB_1 = require("../database/tarefaDB");
+const moduloFeitoDB_1 = require("../database/moduloFeitoDB");
 const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
 exports.default = router;
@@ -107,8 +109,41 @@ router.delete('/modulo', (req, res) => __awaiter(void 0, void 0, void 0, functio
         res.status(401).json({ message: 'Token inválido' });
     }
 }));
+router.put('/modulo/verificar-conclusao', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const verificacao = verificarTokenRequest(req);
+    if (verificacao) {
+        const idUser = verificacao['id'];
+        const modulo = req.query['idModulo'];
+        if (modulo != undefined) {
+            const result = yield (0, tarefaDB_1.getTarefasFromModulo)(modulo.toString());
+            const tarefasModulo = result['tarefas'];
+            const tarefasConcluida = result['tarefa_feitas'];
+            if (tarefasModulo != 0 && tarefasModulo == tarefasConcluida) {
+                yield salvarConclusaoModulo(modulo.toString(), idUser);
+                res.status(201).json({ message: 'Conclusão salva' });
+            }
+            else {
+                res.status(404).json({ message: 'Modulo incompleto' });
+            }
+        }
+        else {
+            res.status(500).json({ message: 'Modulo não encontrado' });
+        }
+    }
+    else {
+        res.status(401).json({ message: 'Token inválido' });
+    }
+}));
 function verificarTokenRequest(req) {
     const token = req.header('Authorization');
     const decoded = (0, auth_1.verificarToken)(token);
     return decoded;
+}
+function salvarConclusaoModulo(moduloId, usuarioId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        var result = yield (0, moduloFeitoDB_1.verificarModuloFeito)(moduloId, usuarioId);
+        if (result) {
+            yield (0, moduloFeitoDB_1.salvarModuloFeito)(moduloId, usuarioId);
+        }
+    });
 }

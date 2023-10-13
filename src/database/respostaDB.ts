@@ -8,6 +8,13 @@ export async function getRespostas(id: String) {
     return result.rows
 }
 
+export async function getResposta(id: String) {
+    const query = 'SELECT * FROM resposta where id = $1'
+    const values = [id]
+    const result = await pool.query(query, values)
+    return result.rows[0]
+}
+
 export async function addResposta(resposta: RespostaDTO, idTarefa: String) {
     const query = 'INSERT INTO resposta (descricao, resposta_correta, id_tarefa) VALUES ($1, $2, $3) RETURNING *'
     const values = [resposta.descricao, resposta.resposta_correta, idTarefa]

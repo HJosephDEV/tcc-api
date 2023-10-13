@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteResposta = exports.updateResposta = exports.addResposta = exports.getRespostas = void 0;
+exports.deleteResposta = exports.updateResposta = exports.addResposta = exports.getResposta = exports.getRespostas = void 0;
 const index_1 = __importDefault(require("./index"));
 function getRespostas(id) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -23,6 +23,15 @@ function getRespostas(id) {
     });
 }
 exports.getRespostas = getRespostas;
+function getResposta(id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const query = 'SELECT * FROM resposta where id = $1';
+        const values = [id];
+        const result = yield index_1.default.query(query, values);
+        return result.rows[0];
+    });
+}
+exports.getResposta = getResposta;
 function addResposta(resposta, idTarefa) {
     return __awaiter(this, void 0, void 0, function* () {
         const query = 'INSERT INTO resposta (descricao, resposta_correta, id_tarefa) VALUES ($1, $2, $3) RETURNING *';

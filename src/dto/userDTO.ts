@@ -9,6 +9,7 @@ class UserDTO{
         public user_exp:number = 0,
         public user_next_level_exp: number = 100,
         public bloqueado:boolean = false,
+        public vidas: number = 3
     ){}
 }
 

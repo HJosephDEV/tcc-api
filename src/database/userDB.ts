@@ -13,15 +13,15 @@ export async function getUser(id: string) {
 }
 
 export async function createUser(user: UserDTO) {
-    const query = 'INSERT INTO usuario (nome, login, email, senha, user_level, user_exp, user_next_level_exp, bloqueado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *'
-    const values = [user.nome, user.login, user.email, user.senha, user.user_level ?? 1, user.user_exp ?? 0, user.user_next_level_exp ?? 100, user.bloqueado ?? false]
+    const query = 'INSERT INTO usuario (nome, login, email, senha, user_level, user_exp, user_next_level_exp, bloqueado, vidas) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *'
+    const values = [user.nome, user.login, user.email, user.senha, user.user_level ?? 1, user.user_exp ?? 0, user.user_next_level_exp ?? 100, user.bloqueado ?? false, user.vidas ?? 3]
     const result = await pool.query(query, values)
     return result.rows[0]
 }
 
 export async function updateUser(id: string, user: UserDTO) {
-    const query = 'UPDATE usuario SET nome = $1, login = $2, email = $3, senha = $4, user_level = $5, user_exp = $6, user_next_level_exp = $7, bloqueado = $8 WHERE id = $9'
-    const values = [user.nome, user.login, user.email, user.senha, user.user_level, user.user_exp, user.user_next_level_exp, user.bloqueado, id]
+    const query = 'UPDATE usuario SET nome = $1, login = $2, email = $3, senha = $4, user_level = $5, user_exp = $6, user_next_level_exp = $7, bloqueado = $8, vidas = $9 WHERE id = $10'
+    const values = [user.nome, user.login, user.email, user.senha, user.user_level, user.user_exp, user.user_next_level_exp, user.bloqueado, user.vidas, id]
     const result = await pool.query(query, values)
     return result.rowCount > 0
 }
@@ -57,4 +57,17 @@ export async function unblockUser(id: String) {
     const values = [id]
     const result = await pool.query(query, values)
     return result.rowCount > 0
+}
+
+export async function updateVidas(id: string, vidas: number) {
+    var user = await getUser(id)
+    if(user.vidas < 3) {
+        const query = 'UPDATE usuario SET vidas = $1 WHERE id = $2'
+        const values = [user.vidas + vidas, id]
+        const result = await pool.query(query, values)
+        return result.rowCount > 0
+    } else {
+        return false
+    }
+    
 }

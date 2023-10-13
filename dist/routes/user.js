@@ -167,6 +167,27 @@ router.put('/usuario/unblock', express_1.default.json(), (req, res) => __awaiter
         res.status(401).json({ message: 'Token inválido' });
     }
 }));
+router.put('/usuario/restaurar-vida', express_1.default.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const verificacao = verificarTokenRequest(req);
+    if (verificacao) {
+        const id = verificacao['id'];
+        if (id != undefined) {
+            const result = yield (0, userDB_1.updateVidas)(id.toString(), 1);
+            if (result) {
+                res.status(201).json({ message: 'Vida restaurada' });
+            }
+            else {
+                res.status(500).json({ message: 'Vida não foi restaurada' });
+            }
+        }
+        else {
+            res.status(500).json({ message: 'Código de usuário não informado' });
+        }
+    }
+    else {
+        res.status(401).json({ message: 'Token inválido' });
+    }
+}));
 function verificarTokenRequest(req) {
     const token = req.header('Authorization');
     const decoded = (0, auth_1.verificarToken)(token);
