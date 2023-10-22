@@ -104,7 +104,7 @@ async function ajustarExp(user: UserDTO, tarefa: TarefaDTO) {
     } else {
         user.user_exp = currentExp
     }
-    await updateUser(user.id.toString(), user)
+    await updateUser(user.id.toString(), user, false)
     return upouNivel
 }
 

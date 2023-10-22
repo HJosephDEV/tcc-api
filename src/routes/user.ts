@@ -70,13 +70,19 @@ router.put('/usuario', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
         try {
-            const updatedUser: UserDTO = req.body
-            if(updatedUser != undefined){
-                const result = await updateUser(updatedUser!.id.toString(), updatedUser)
+            const dadosNovos: UserDTO = req.body
+            if(dadosNovos != undefined){
+                const usuarioAntigo: UserDTO = await getUser(dadosNovos!.id.toString())
+                if(usuarioAntigo == undefined || usuarioAntigo == null) {
+                    res.status(404).json({message: 'Usuário não encontrado'})
+                    return
+                }
+                const usuarioAtualizado = criarUsuarioAtualizado(usuarioAntigo, dadosNovos)
+                const result = await updateUser(dadosNovos!.id.toString(), usuarioAtualizado, !(dadosNovos.senha == null || dadosNovos.senha == undefined))
                 if(result) {
                     res.status(201).json({message: 'Usuário Atualizado'})
                 } else {
-                    res.status(403).json({message: 'Usuário não encontrado'})
+                    res.status(404).json({message: 'Usuário não encontrado'})
                 }
             } else {
                 res.status(403).json({message: 'Informações incorretas'})
@@ -219,6 +225,24 @@ router.put('/usuario/restaurar-vida', express.json(), async (req, res) => {
 
 function criarUsuarioRetorno(user: UserDTO) {
     return new RetornoUserDTO(user.nome, user.sobrenome, user.login, user.email, user.user_level, user.user_exp, user.user_next_level_exp, user.bloqueado, user.vidas, user.id_avatar)
+}
+
+function criarUsuarioAtualizado(userAntigo: UserDTO, userNovo: UserDTO) {
+    const id = userNovo.id ?? userAntigo.id
+    const nome = userNovo.nome ?? userAntigo.nome
+    const sobrenome = userNovo.sobrenome ?? userAntigo.sobrenome
+    const login = userNovo.login ?? userAntigo.login
+    const email = userNovo.email ?? userAntigo.email
+    const senha = userNovo.senha ?? userAntigo.senha
+    const user_level = userNovo.user_level ?? userAntigo.user_level
+    const user_exp = userNovo.user_exp ?? userAntigo.user_exp
+    const user_next_level_exp = userNovo.user_next_level_exp ?? userAntigo.user_next_level_exp
+    const bloqueado = userNovo.bloqueado ?? userAntigo.bloqueado
+    const vidas = userNovo.vidas ?? userAntigo.vidas
+    const id_avatar = userNovo.id_avatar ?? userAntigo.id_avatar
+    const is_admin = userNovo.is_admin ?? userAntigo.is_admin
+
+    return new UserDTO(id, nome, sobrenome, login, email, senha, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin)
 }
 
 function verificarTokenRequest(req: Request) {
