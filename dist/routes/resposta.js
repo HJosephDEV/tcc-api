@@ -72,6 +72,7 @@ router.post('/resposta/enviar', express_1.default.json(), (req, res) => __awaite
             return;
         }
         const idUser = verificacao['id'];
+        console.log(idUser);
         const user = yield (0, userDB_1.getUser)(idUser);
         if (user.vidas <= 0) {
             res.status(500).json({ message: 'Sem vidas restantes' });
@@ -101,6 +102,7 @@ router.post('/resposta/enviar', express_1.default.json(), (req, res) => __awaite
 function verificarTokenRequest(req) {
     const token = req.header('Authorization');
     const decoded = (0, auth_1.verificarToken)(token);
+    console.log(decoded);
     return decoded;
 }
 function ajustarExp(user, tarefa) {

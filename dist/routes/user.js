@@ -15,13 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const userDB_1 = require("../database/userDB");
 const auth_1 = require("../middleware/auth");
+const avatarDB_1 = require("../database/avatarDB");
 const router = express_1.default.Router();
 exports.default = router;
 router.get('/usuarios', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const verificacao = verificarTokenRequest(req);
     if (verificacao) {
-        const result = yield (0, userDB_1.getUsers)();
-        res.status(201).json({ message: 'Usuários encontrado', tarefas: result });
+        try {
+            const result = yield (0, userDB_1.getUsers)();
+            res.status(201).json({ message: 'Usuários encontrado', data: result });
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).json({ message: `Erro enquanto pegava o usuário: ${error}` });
+        }
     }
     else {
         res.status(401).json({ message: 'Token inválido' });
@@ -32,16 +39,24 @@ router.get('/usuario', (req, res) => __awaiter(void 0, void 0, void 0, function*
     if (verificacao) {
         const id = req.query['id'];
         if (id != undefined) {
-            const result = yield (0, userDB_1.getUser)(id.toString());
-            if (result != undefined) {
-                res.status(201).json({ message: 'Usuário encontrado', user: result });
+            try {
+                const result = yield (0, userDB_1.getUser)(id.toString());
+                const avatar = yield (0, avatarDB_1.getAvatar)(result.id_avatar.toString());
+                result.url_avatar = avatar.url;
+                if (result != undefined) {
+                    res.status(201).json({ message: 'Usuário encontrado', data: result });
+                }
+                else {
+                    res.status(403).json({ message: 'Usuário não encontrado' });
+                }
             }
-            else {
-                res.status(404).json({ message: 'Usuário não encontrado' });
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ message: `Erro enquanto pegava o usuário: ${error}` });
             }
         }
         else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+            res.status(403).json({ message: 'Código de usuário não informado' });
         }
     }
     else {
@@ -52,28 +67,36 @@ router.post('/usuario', express_1.default.json(), (req, res) => __awaiter(void 0
     const novoUsuario = req.body;
     try {
         const newUser = yield (0, userDB_1.createUser)(novoUsuario);
-        res.status(201).json({ message: 'Usuario criado com sucesso', user: newUser });
+        const avatar = yield (0, avatarDB_1.getAvatar)(newUser.id_avatar.toString());
+        newUser.url_avatar = avatar.url;
+        res.status(201).json({ message: 'Usuario criado com sucesso', data: newUser });
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Erro na criação de usuário' });
+        res.status(500).json({ message: `Erro na criação de usuário: ${error}` });
     }
 }));
 router.put('/usuario', express_1.default.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const verificacao = verificarTokenRequest(req);
     if (verificacao) {
-        const updatedUser = req.body;
-        if (updatedUser != undefined) {
-            const result = yield (0, userDB_1.updateUser)(updatedUser.id.toString(), updatedUser);
-            if (result) {
-                res.status(201).json({ message: 'Usuário Atualizado' });
+        try {
+            const updatedUser = req.body;
+            if (updatedUser != undefined) {
+                const result = yield (0, userDB_1.updateUser)(updatedUser.id.toString(), updatedUser);
+                if (result) {
+                    res.status(201).json({ message: 'Usuário Atualizado' });
+                }
+                else {
+                    res.status(403).json({ message: 'Usuário não encontrado' });
+                }
             }
             else {
-                res.status(404).json({ message: 'Usuário não encontrado' });
+                res.status(403).json({ message: 'Informações incorretas' });
             }
         }
-        else {
-            res.status(500).json({ message: 'Informações incorretas' });
+        catch (error) {
+            console.log(error);
+            res.status(500).json({ message: `Erro na atualização de usuário: ${error}` });
         }
     }
     else {
@@ -83,18 +106,24 @@ router.put('/usuario', express_1.default.json(), (req, res) => __awaiter(void 0,
 router.delete('/usuario', express_1.default.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const verificacao = verificarTokenRequest(req);
     if (verificacao) {
-        const id = req.query['id'];
-        if (id != undefined) {
-            const result = yield (0, userDB_1.deleteUser)(id.toString());
-            if (result) {
-                res.status(201).json({ message: 'Usuário deletado' });
+        try {
+            const id = req.query['id'];
+            if (id != undefined) {
+                const result = yield (0, userDB_1.deleteUser)(id.toString());
+                if (result) {
+                    res.status(201).json({ message: 'Usuário deletado' });
+                }
+                else {
+                    res.status(403).json({ message: 'Usuário não encontrado' });
+                }
             }
             else {
-                res.status(404).json({ message: 'Usuário não encontrado' });
+                res.status(403).json({ message: 'Código de usuário não informado' });
             }
         }
-        else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+        catch (error) {
+            console.log(error);
+            res.status(500).json({ message: `Erro enquanto deletava o usuário: ${error}` });
         }
     }
     else {
@@ -113,33 +142,42 @@ router.post('/usuario/login', express_1.default.json(), (req, res) => __awaiter(
             result = yield (0, userDB_1.getLogin)(dados['login'].toString(), dados['senha'].toString());
         }
         if (result != undefined) {
+            const avatar = yield (0, avatarDB_1.getAvatar)(result.id_avatar.toString());
+            result.url_avatar = avatar.url;
             const token = (0, auth_1.gerarToken)({ id: result.id });
-            res.status(201).json({ message: 'Usuário logado', token: token });
+            result.token = token;
+            res.status(201).json({ message: 'Usuário logado', data: result });
         }
         else {
-            res.status(404).json({ message: 'Informações incorretas' });
+            res.status(403).json({ message: 'Informações incorretas' });
         }
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Erro na criação de usuário' });
+        res.status(500).json({ message: `Erro durante o login: ${error}` });
     }
 }));
 router.put('/usuario/block', express_1.default.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const verificacao = verificarTokenRequest(req);
     if (verificacao) {
-        const id = req.query['id'];
-        if (id != undefined) {
-            const result = yield (0, userDB_1.blockUser)(id.toString());
-            if (result) {
-                res.status(201).json({ message: 'Usuário bloqueado' });
+        try {
+            const id = req.query['id'];
+            if (id != undefined) {
+                const result = yield (0, userDB_1.blockUser)(id.toString());
+                if (result) {
+                    res.status(201).json({ message: 'Usuário bloqueado' });
+                }
+                else {
+                    res.status(403).json({ message: 'Usuário já bloqueado ou não encontrado' });
+                }
             }
             else {
-                res.status(404).json({ message: 'Usuário já bloqueado ou não encontrado' });
+                res.status(403).json({ message: 'Código de usuário não informado' });
             }
         }
-        else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+        catch (error) {
+            console.log(error);
+            res.status(500).json({ message: `Erro enquanto bloqueava o usuário: ${error}` });
         }
     }
     else {
@@ -149,18 +187,24 @@ router.put('/usuario/block', express_1.default.json(), (req, res) => __awaiter(v
 router.put('/usuario/unblock', express_1.default.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const verificacao = verificarTokenRequest(req);
     if (verificacao) {
-        const id = req.query['id'];
-        if (id != undefined) {
-            const result = yield (0, userDB_1.unblockUser)(id.toString());
-            if (result) {
-                res.status(201).json({ message: 'Usuário desbloqueado' });
+        try {
+            const id = req.query['id'];
+            if (id != undefined) {
+                const result = yield (0, userDB_1.unblockUser)(id.toString());
+                if (result) {
+                    res.status(201).json({ message: 'Usuário desbloqueado' });
+                }
+                else {
+                    res.status(403).json({ message: 'Usuário já desbloqueado ou não encontrado' });
+                }
             }
             else {
-                res.status(404).json({ message: 'Usuário já desbloqueado ou não encontrado' });
+                res.status(403).json({ message: 'Código de usuário não informado' });
             }
         }
-        else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+        catch (error) {
+            console.log(error);
+            res.status(500).json({ message: `Erro enquanto desbloqueava o usuário: ${error}` });
         }
     }
     else {
@@ -170,18 +214,24 @@ router.put('/usuario/unblock', express_1.default.json(), (req, res) => __awaiter
 router.put('/usuario/restaurar-vida', express_1.default.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const verificacao = verificarTokenRequest(req);
     if (verificacao) {
-        const id = verificacao['id'];
-        if (id != undefined) {
-            const result = yield (0, userDB_1.updateVidas)(id.toString(), 1);
-            if (result) {
-                res.status(201).json({ message: 'Vida restaurada' });
+        try {
+            const id = verificacao['id'];
+            if (id != undefined) {
+                const result = yield (0, userDB_1.updateVidas)(id.toString(), 1);
+                if (result) {
+                    res.status(201).json({ message: 'Vida restaurada' });
+                }
+                else {
+                    res.status(403).json({ message: 'Vida não foi restaurada' });
+                }
             }
             else {
-                res.status(500).json({ message: 'Vida não foi restaurada' });
+                res.status(403).json({ message: 'Código de usuário não informado' });
             }
         }
-        else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+        catch (error) {
+            console.log(error);
+            res.status(500).json({ message: `Erro restauva as vidas: ${error}` });
         }
     }
     else {

@@ -23,17 +23,18 @@ function getUsers() {
 exports.getUsers = getUsers;
 function getUser(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const query = 'SELECT * FROM usuario WHERE id = $1';
+        const query = 'SELECT nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin FROM usuario WHERE id = $1';
         const result = yield index_1.default.query(query, [id]);
         return result.rows[0];
     });
 }
 exports.getUser = getUser;
 function createUser(user) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f;
     return __awaiter(this, void 0, void 0, function* () {
-        const query = 'INSERT INTO usuario (nome, login, email, senha, user_level, user_exp, user_next_level_exp, bloqueado, vidas) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *';
-        const values = [user.nome, user.login, user.email, user.senha, (_a = user.user_level) !== null && _a !== void 0 ? _a : 1, (_b = user.user_exp) !== null && _b !== void 0 ? _b : 0, (_c = user.user_next_level_exp) !== null && _c !== void 0 ? _c : 100, (_d = user.bloqueado) !== null && _d !== void 0 ? _d : false, (_e = user.vidas) !== null && _e !== void 0 ? _e : 3];
+        const query = 'INSERT INTO usuario (nome, sobrenome, login, email, senha, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)' +
+            'RETURNING nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin';
+        const values = [user.nome, user.sobrenome, user.login, user.email, user.senha, (_a = user.user_level) !== null && _a !== void 0 ? _a : 1, (_b = user.user_exp) !== null && _b !== void 0 ? _b : 0, (_c = user.user_next_level_exp) !== null && _c !== void 0 ? _c : 100, (_d = user.bloqueado) !== null && _d !== void 0 ? _d : false, (_e = user.vidas) !== null && _e !== void 0 ? _e : 3, user.id_avatar, (_f = user.is_admin) !== null && _f !== void 0 ? _f : false];
         const result = yield index_1.default.query(query, values);
         return result.rows[0];
     });
@@ -59,7 +60,7 @@ function deleteUser(id) {
 exports.deleteUser = deleteUser;
 function getLoginEmail(email, senha) {
     return __awaiter(this, void 0, void 0, function* () {
-        const query = 'SELECT * FROM usuario WHERE email = $1 AND senha = $2';
+        const query = 'SELECT nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin FROM usuario WHERE email = $1 AND senha = $2';
         const result = yield index_1.default.query(query, [email, senha]);
         return result.rows[0];
     });
@@ -67,7 +68,7 @@ function getLoginEmail(email, senha) {
 exports.getLoginEmail = getLoginEmail;
 function getLogin(login, senha) {
     return __awaiter(this, void 0, void 0, function* () {
-        const query = 'SELECT * FROM usuario WHERE login = $1 AND senha = $2';
+        const query = 'SELECT nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin FROM usuario WHERE login = $1 AND senha = $2';
         const result = yield index_1.default.query(query, [login, senha]);
         return result.rows[0];
     });

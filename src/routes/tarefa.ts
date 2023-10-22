@@ -70,10 +70,10 @@ router.put('/tarefa', async (req, res) => {
             if(result) {
                 res.status(201).json({message: 'Tarefa Atualizado'})
             } else {
-                res.status(404).json({message: 'Tarefa não encontrado'})
+                res.status(403).json({message: 'Tarefa não encontrado'})
             }
         }else {
-            res.status(500).json({message: 'Informações incorretas'})
+            res.status(403).json({message: 'Informações incorretas'})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -89,10 +89,10 @@ router.delete('/tarefa', async (req, res) => {
             if(result){
                 res.status(201).json({message: 'Tarefa deletado'})
             }else{
-                res.status(404).json({message: 'Tarefa não encontrado'})
+                res.status(403).json({message: 'Tarefa não encontrado'})
             }
-        }else {
-            res.status(500).json({message: 'Código do tarefa não informado'})
+        } else {
+            res.status(403).json({message: 'Código do tarefa não informado'})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
