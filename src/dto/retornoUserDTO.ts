@@ -11,7 +11,8 @@ class RetornoUserDTO{
         public bloqueado:boolean = false,
         public vidas: number = 3,
         public id_avatar: number,
-        public url_avatar: String
+        public url_avatar: String,
+        public token: String
     ){}
 }
 

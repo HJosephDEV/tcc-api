@@ -20,8 +20,14 @@ exports.default = router;
 router.get('/avatares', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const verificacao = verificarTokenRequest(req);
     if (verificacao) {
-        const result = yield (0, avatarDB_1.getAvatars)();
-        res.status(201).json({ message: 'Avatares encontrado', avatares: result });
+        try {
+            const result = yield (0, avatarDB_1.getAvatars)();
+            res.status(201).json({ message: 'Avatares encontrado', data: result });
+        }
+        catch (error) {
+            console.log(error);
+            res.status(500).json({ message: `Erro enquanto pegava o avatar: ${error}` });
+        }
     }
     else {
         res.status(401).json({ message: 'Token inválido' });
@@ -32,12 +38,18 @@ router.get('/avatar', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     if (verificacao) {
         const id = req.query['id'];
         if (id != undefined) {
-            const result = yield (0, avatarDB_1.getAvatar)(id.toString());
-            if (result != undefined) {
-                res.status(201).json({ message: 'Avatar encontrado', avatar: result });
+            try {
+                const result = yield (0, avatarDB_1.getAvatar)(id.toString());
+                if (result != undefined) {
+                    res.status(201).json({ message: 'Avatar encontrado', data: result });
+                }
+                else {
+                    res.status(403).json({ message: 'Avatar não encontrado' });
+                }
             }
-            else {
-                res.status(403).json({ message: 'Avatar não encontrado' });
+            catch (error) {
+                console.log(error);
+                res.status(500).json({ message: `Erro enquanto pegava os avatares: ${error}` });
             }
         }
         else {
@@ -52,7 +64,7 @@ router.post('/avatar', express_1.default.json(), (req, res) => __awaiter(void 0,
     const novoAvatar = req.body;
     try {
         const newAvatar = yield (0, avatarDB_1.createAvatar)(novoAvatar);
-        res.status(201).json({ message: 'Avatar criado com sucesso', avatar: newAvatar });
+        res.status(201).json({ message: 'Avatar criado com sucesso', data: newAvatar });
     }
     catch (error) {
         console.log(error);

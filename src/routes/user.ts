@@ -14,8 +14,13 @@ export default router;
 router.get('/usuarios', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
-        const result = await getUsers()
-        res.status(201).json({message: 'Usuários encontrado', tarefas: result})
+        try {
+            const result = await getUsers()
+            res.status(201).json({message: 'Usuários encontrado', data: result})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto pegava o usuário: ${error}`})
+        }
     } else {
         res.status(401).json({ message: 'Token inválido' })
     }
@@ -26,13 +31,18 @@ router.get('/usuario', async (req, res) => {
     if(verificacao) {
         const id = req.query['id']
         if(id != undefined) {
-            const result = await getUser(id!.toString())
-            const avatar: AvatarDTO = await getAvatar(result.id_avatar.toString())
-            result.url_avatar = avatar.url
-            if(result != undefined) {
-                res.status(201).json({message: 'Usuário encontrado', user: result})
-            } else {
-                res.status(403).json({message: 'Usuário não encontrado'})
+            try {
+                const result = await getUser(id!.toString())
+                const avatar: AvatarDTO = await getAvatar(result.id_avatar.toString())
+                result.url_avatar = avatar.url
+                if(result != undefined) {
+                    res.status(201).json({message: 'Usuário encontrado', data: result})
+                } else {
+                    res.status(403).json({message: 'Usuário não encontrado'})
+                }
+            } catch (error) {
+                console.log(error)
+                res.status(500).json({message: `Erro enquanto pegava o usuário: ${error}`})
             }
         }else {
             res.status(403).json({message: 'Código de usuário não informado'})
@@ -48,7 +58,7 @@ router.post('/usuario', express.json(), async (req, res) => {
         const newUser: RetornoUserDTO = await createUser(novoUsuario);
         const avatar: AvatarDTO = await getAvatar(newUser.id_avatar.toString())
         newUser.url_avatar = avatar.url
-        res.status(201).json({message: 'Usuario criado com sucesso', usuario: newUser})
+        res.status(201).json({message: 'Usuario criado com sucesso', data: newUser})
     } catch(error) {
         console.log(error)
         res.status(500).json({message: `Erro na criação de usuário: ${error}`})
@@ -58,16 +68,21 @@ router.post('/usuario', express.json(), async (req, res) => {
 router.put('/usuario', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
-        const updatedUser: UserDTO = req.body
-        if(updatedUser != undefined){
-            const result = await updateUser(updatedUser!.id.toString(), updatedUser)
-            if(result) {
-                res.status(201).json({message: 'Usuário Atualizado'})
+        try {
+            const updatedUser: UserDTO = req.body
+            if(updatedUser != undefined){
+                const result = await updateUser(updatedUser!.id.toString(), updatedUser)
+                if(result) {
+                    res.status(201).json({message: 'Usuário Atualizado'})
+                } else {
+                    res.status(403).json({message: 'Usuário não encontrado'})
+                }
             } else {
-                res.status(403).json({message: 'Usuário não encontrado'})
+                res.status(403).json({message: 'Informações incorretas'})
             }
-        } else {
-            res.status(403).json({message: 'Informações incorretas'})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro na atualização de usuário: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -77,16 +92,21 @@ router.put('/usuario', express.json(), async (req, res) => {
 router.delete('/usuario', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
-        const id = req.query['id']
-        if(id != undefined){
-            const result = await deleteUser(id!.toString())
-            if(result){
-                res.status(201).json({message: 'Usuário deletado'})
-            }else{
-                res.status(403).json({message: 'Usuário não encontrado'})
+        try {
+            const id = req.query['id']
+            if(id != undefined){
+                const result = await deleteUser(id!.toString())
+                if(result){
+                    res.status(201).json({message: 'Usuário deletado'})
+                }else{
+                    res.status(403).json({message: 'Usuário não encontrado'})
+                }
+            }else {
+                res.status(403).json({message: 'Código de usuário não informado'})
             }
-        }else {
-            res.status(403).json({message: 'Código de usuário não informado'})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto deletava o usuário: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -97,37 +117,45 @@ router.post('/usuario/login', express.json(), async (req, res) => {
     const dados = req.body
     try{
         const login = dados['login'].toString() as String
-        var result
+        var result: RetornoUserDTO
         if(login.includes("@") == true) {
             result = await getLoginEmail(dados['login']!.toString(), dados['senha']!.toString())
         } else {
             result = await getLogin(dados['login']!.toString(), dados['senha']!.toString())
         }
-        if(result != undefined){
+        if(result != undefined) {
+            const avatar: AvatarDTO = await getAvatar(result.id_avatar.toString())
+            result.url_avatar = avatar.url
             const token = gerarToken({id: result.id})
-            res.status(201).json({message: 'Usuário logado', token: token}) 
+            result.token = token
+            res.status(201).json({message: 'Usuário logado', data: result}) 
         } else {
             res.status(403).json({message: 'Informações incorretas'})
         }
     } catch(error) {
         console.log(error)
-        res.status(500).json({message: `Erro na criação de usuário: ${error}`})
+        res.status(500).json({message: `Erro durante o login: ${error}`})
     }
 })
 
 router.put('/usuario/block', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
-        const id = req.query['id']
-        if(id != undefined){
-            const result = await blockUser(id!.toString())
-            if(result){
-                res.status(201).json({message: 'Usuário bloqueado'})
-            }else{
-                res.status(403).json({message: 'Usuário já bloqueado ou não encontrado'})
+        try {
+            const id = req.query['id']
+            if(id != undefined){
+                const result = await blockUser(id!.toString())
+                if(result){
+                    res.status(201).json({message: 'Usuário bloqueado'})
+                }else{
+                    res.status(403).json({message: 'Usuário já bloqueado ou não encontrado'})
+                }
+            }else {
+                res.status(403).json({message: 'Código de usuário não informado'})
             }
-        }else {
-            res.status(403).json({message: 'Código de usuário não informado'})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto bloqueava o usuário: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -137,16 +165,21 @@ router.put('/usuario/block', express.json(), async (req, res) => {
 router.put('/usuario/unblock', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) { 
-        const id = req.query['id']
-        if(id != undefined){
-            const result = await unblockUser(id!.toString())
-            if(result){
-                res.status(201).json({message: 'Usuário desbloqueado'})
-            }else{
-                res.status(403).json({message: 'Usuário já desbloqueado ou não encontrado'})
+        try {
+            const id = req.query['id']
+            if(id != undefined){
+                const result = await unblockUser(id!.toString())
+                if(result){
+                    res.status(201).json({message: 'Usuário desbloqueado'})
+                }else{
+                    res.status(403).json({message: 'Usuário já desbloqueado ou não encontrado'})
+                }
+            }else {
+                res.status(403).json({message: 'Código de usuário não informado'})
             }
-        }else {
-            res.status(403).json({message: 'Código de usuário não informado'})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto desbloqueava o usuário: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -156,16 +189,21 @@ router.put('/usuario/unblock', express.json(), async (req, res) => {
 router.put('/usuario/restaurar-vida', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) { 
-        const id = verificacao['id']
-        if(id != undefined){
-            const result = await updateVidas(id!.toString(), 1)
-            if(result){
-                res.status(201).json({message: 'Vida restaurada'})
-            }else{
-                res.status(403).json({message: 'Vida não foi restaurada'})
+        try {
+            const id = verificacao['id']
+            if(id != undefined){
+                const result = await updateVidas(id!.toString(), 1)
+                if(result){
+                    res.status(201).json({message: 'Vida restaurada'})
+                }else{
+                    res.status(403).json({message: 'Vida não foi restaurada'})
+                }
+            } else {
+                res.status(403).json({message: 'Código de usuário não informado'})
             }
-        } else {
-            res.status(403).json({message: 'Código de usuário não informado'})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro restauva as vidas: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class RetornoUserDTO {
-    constructor(id, nome, sobrenome, login, email, user_level = 1, user_exp = 0, user_next_level_exp = 100, bloqueado = false, vidas = 3, id_avatar, url_avatar) {
+    constructor(id, nome, sobrenome, login, email, user_level = 1, user_exp = 0, user_next_level_exp = 100, bloqueado = false, vidas = 3, id_avatar, url_avatar, token) {
         this.id = id;
         this.nome = nome;
         this.sobrenome = sobrenome;
@@ -14,6 +14,7 @@ class RetornoUserDTO {
         this.vidas = vidas;
         this.id_avatar = id_avatar;
         this.url_avatar = url_avatar;
+        this.token = token;
     }
 }
 exports.default = RetornoUserDTO;
