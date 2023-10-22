@@ -38,9 +38,11 @@ router.get('/usuario', async (req, res) => {
                     res.status(404).json({message: 'Usuário não encontrado'})
                     return
                 }
-                const avatar: AvatarDTO = await getAvatar(result.id_avatar.toString())
-                result.url_avatar = avatar.url
-                res.status(201).json({message: 'Usuário encontrado', data: result})
+                const usuario: RetornoUserDTO = criarUsuarioRetorno(result)
+                const avatar: AvatarDTO = await getAvatar(usuario.id_avatar.toString())
+                usuario.url_avatar = avatar.url
+                usuario.token = req.header('Authorization')!.split(" ").at(-1)!
+                res.status(201).json({message: 'Usuário encontrado', data: usuario})
             } catch (error) {
                 console.log(error)
                 res.status(500).json({message: `Erro enquanto pegava o usuário: ${error}`})
