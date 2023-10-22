@@ -30,7 +30,7 @@ router.get('/usuarios', async (req, res) => {
 router.get('/usuario', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
-        const id = req.query['id']
+        const id = verificacao['id']
         if(id != undefined) {
             try {
                 const result = await getUser(id!.toString())
