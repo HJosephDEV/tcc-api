@@ -34,13 +34,13 @@ router.get('/usuario', async (req, res) => {
         if(id != undefined) {
             try {
                 const result = await getUser(id!.toString())
+                if(result == undefined || result == null) {
+                    res.status(404).json({message: 'Usuário não encontrado'})
+                    return
+                }
                 const avatar: AvatarDTO = await getAvatar(result.id_avatar.toString())
                 result.url_avatar = avatar.url
-                if(result != undefined) {
-                    res.status(201).json({message: 'Usuário encontrado', data: result})
-                } else {
-                    res.status(403).json({message: 'Usuário não encontrado'})
-                }
+                res.status(201).json({message: 'Usuário encontrado', data: result})
             } catch (error) {
                 console.log(error)
                 res.status(500).json({message: `Erro enquanto pegava o usuário: ${error}`})
@@ -122,7 +122,7 @@ router.delete('/usuario', express.json(), async (req, res) => {
 
 router.post('/usuario/login', express.json(), async (req, res) => {
     const dados = req.body
-    try{
+    try {
         const login = dados['login'].toString() as String
         var result: UserDTO
         if(login.includes("@") == true) {
@@ -246,7 +246,12 @@ function criarUsuarioAtualizado(userAntigo: UserDTO, userNovo: UserDTO) {
 }
 
 function verificarTokenRequest(req: Request) {
-    const token = req.header('Authorization')
-    const decoded = verificarToken(token!.split(" ").at(-1)!)
-    return decoded
+    try {
+        const token = req.header('Authorization')
+        const decoded = verificarToken(token!.split(" ").at(-1)!)
+        return decoded
+    } catch (error) {
+        console.log(error)
+        return
+    }
 }
