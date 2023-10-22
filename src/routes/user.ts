@@ -6,6 +6,7 @@ import { gerarToken, verificarToken } from '../middleware/auth';
 import RetornoUserDTO from '../dto/retornoUserDTO';
 import { getAvatar } from '../database/avatarDB';
 import AvatarDTO from '../dto/avatarDTO';
+import bcrypt, { hash } from 'bcrypt';
 
 const router: IRouter = express.Router();
 
@@ -119,20 +120,25 @@ router.post('/usuario/login', express.json(), async (req, res) => {
         const login = dados['login'].toString() as String
         var result: UserDTO
         if(login.includes("@") == true) {
-            result = await getLoginEmail(dados['login']!.toString(), dados['senha']!.toString())
+            result = await getLoginEmail(dados['login']!.toString())
         } else {
-            result = await getLogin(dados['login']!.toString(), dados['senha']!.toString())
+            result = await getLogin(dados['login']!.toString())
         }
-        if(result != undefined) {
-            const avatar: AvatarDTO = await getAvatar(result.id_avatar.toString())
-            const usuario: RetornoUserDTO = criarUsuarioRetorno(result)
-            usuario.url_avatar = avatar.url
-            const token = gerarToken({id: result.id})
-            usuario.token = token
-            res.status(201).json({message: 'Usuário logado', data: usuario}) 
-        } else {
+        if(result == undefined) {
             res.status(403).json({message: 'Informações incorretas'})
+            return
         }
+        const verifSenha = await bcrypt.compare(dados['senha']!.toString(), result.senha.toString());
+        if(!verifSenha) {
+            res.status(401).json({message: 'Senha inválida'})
+            return 
+        }
+        const avatar: AvatarDTO = await getAvatar(result.id_avatar.toString())
+        const usuario: RetornoUserDTO = criarUsuarioRetorno(result)
+        usuario.url_avatar = avatar.url
+        const token = gerarToken({id: result.id})
+        usuario.token = token
+        res.status(201).json({message: 'Usuário logado', data: usuario})
     } catch(error) {
         console.log(error)
         res.status(500).json({message: `Erro durante o login: ${error}`})
