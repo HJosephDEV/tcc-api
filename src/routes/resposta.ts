@@ -89,7 +89,7 @@ router.post('/resposta/enviar', express.json(), async (req, res) => {
 
 function verificarTokenRequest(req: Request) {
     const token = req.header('Authorization')
-    const decoded = verificarToken(token!)
+    const decoded = verificarToken(token!.split(" ").at(-1)!)
     return decoded
 }
 
