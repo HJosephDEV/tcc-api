@@ -117,7 +117,7 @@ router.post('/usuario/login', express.json(), async (req, res) => {
     const dados = req.body
     try{
         const login = dados['login'].toString() as String
-        var result: RetornoUserDTO
+        var result: UserDTO
         if(login.includes("@") == true) {
             result = await getLoginEmail(dados['login']!.toString(), dados['senha']!.toString())
         } else {
@@ -125,10 +125,11 @@ router.post('/usuario/login', express.json(), async (req, res) => {
         }
         if(result != undefined) {
             const avatar: AvatarDTO = await getAvatar(result.id_avatar.toString())
-            result.url_avatar = avatar.url
+            const usuario: RetornoUserDTO = criarUsuarioRetorno(result)
+            usuario.url_avatar = avatar.url
             const token = gerarToken({id: result.id})
-            result.token = token
-            res.status(201).json({message: 'Usuário logado', data: result}) 
+            usuario.token = token
+            res.status(201).json({message: 'Usuário logado', data: usuario}) 
         } else {
             res.status(403).json({message: 'Informações incorretas'})
         }
@@ -209,6 +210,10 @@ router.put('/usuario/restaurar-vida', express.json(), async (req, res) => {
         res.status(401).json({ message: 'Token inválido' })
     }
 })
+
+function criarUsuarioRetorno(user: UserDTO) {
+    return new RetornoUserDTO(user.nome, user.sobrenome, user.login, user.email, user.user_level, user.user_exp, user.user_next_level_exp, user.bloqueado, user.vidas, user.id_avatar)
+}
 
 function verificarTokenRequest(req: Request) {
     const token = req.header('Authorization')

@@ -1,8 +1,14 @@
 import AvatarDTO from '../dto/avatarDTO';
 import pool from './index';
 
-export async function getAvatars() {
-    const result = await pool.query('SELECT * FROM avatar')
+export async function getAvatarsDesbloqueados(id: string) {
+    const query = 'select a.*, ((SELECT COUNT(*) FROM usuario u WHERE a.id = u.id_avatar and u.id = $1) = 1) as selecionado, ((SELECT COUNT(*) FROM usuario u WHERE u.id = $1 and a.level_req <= u.user_level) = 1) as desbloqueado from avatar a'
+    const result = await pool.query(query, [id])
+    return result.rows
+}
+
+export async function getAvatarsGeral() {
+    const result = await pool.query('SELECT a.*, false as selecionado, (a.level_req = 0) as desbloqueado FROM avatar a')
     return result.rows
 }
 

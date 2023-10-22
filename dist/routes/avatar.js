@@ -19,18 +19,22 @@ const router = express_1.default.Router();
 exports.default = router;
 router.get('/avatares', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const verificacao = verificarTokenRequest(req);
-    if (verificacao) {
-        try {
-            const result = yield (0, avatarDB_1.getAvatars)();
-            res.status(201).json({ message: 'Avatares encontrado', data: result });
+    try {
+        console.log(verificacao);
+        const idUser = verificacao['id'];
+        console.log(idUser);
+        var result;
+        if (idUser != undefined) {
+            result = yield (0, avatarDB_1.getAvatarsDesbloqueados)(idUser.toString());
         }
-        catch (error) {
-            console.log(error);
-            res.status(500).json({ message: `Erro enquanto pegava o avatar: ${error}` });
+        else {
+            result = yield (0, avatarDB_1.getAvatarsGeral)();
         }
+        res.status(201).json({ message: 'Avatares encontrado', data: result });
     }
-    else {
-        res.status(401).json({ message: 'Token inválido' });
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: `Erro enquanto pegava o avatar: ${error}` });
     }
 }));
 router.get('/avatar', (req, res) => __awaiter(void 0, void 0, void 0, function* () {

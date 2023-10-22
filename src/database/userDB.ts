@@ -35,13 +35,13 @@ export async function deleteUser(id: string) {
 }
 
 export async function getLoginEmail(email: string, senha: string){
-  const query = 'SELECT nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin FROM usuario WHERE email = $1 AND senha = $2'
+  const query = 'SELECT id, nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin FROM usuario WHERE email = $1 AND senha = $2'
   const result = await pool.query(query, [email, senha])
   return result.rows[0]
 }
 
 export async function getLogin(login: string, senha: string){
-    const query = 'SELECT nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin FROM usuario WHERE login = $1 AND senha = $2'
+    const query = 'SELECT id, nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin FROM usuario WHERE login = $1 AND senha = $2'
     const result = await pool.query(query, [login, senha])
     return result.rows[0]
   }

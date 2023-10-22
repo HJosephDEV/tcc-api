@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import { verificarToken } from '../middleware/auth';
-import { createAvatar, getAvatar, getAvatars } from '../database/avatarDB';
+import { createAvatar, getAvatar, getAvatarsGeral, getAvatarsDesbloqueados } from '../database/avatarDB';
 import AvatarDTO from '../dto/avatarDTO';
 
 const router: IRouter = express.Router();
@@ -10,16 +10,22 @@ export default router;
 
 router.get('/avatares', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
-    if (verificacao) {
-        try {
-            const result = await getAvatars()
-            res.status(201).json({message: 'Avatares encontrado', data: result})
-        } catch (error) {
-            console.log(error)
-            res.status(500).json({message: `Erro enquanto pegava o avatar: ${error}`})
+    try {
+        var idUser = null
+        if(verificacao != undefined && verificacao != null) {
+            idUser = verificacao['id']
         }
-    } else {
-        res.status(401).json({ message: 'Token inválido' })
+        var result
+        if(idUser != undefined && idUser != null) {
+            result = await getAvatarsDesbloqueados(idUser!.toString())
+        } else {
+            result = await getAvatarsGeral()
+        }
+
+        res.status(201).json({message: 'Avatares encontrado', data: result})
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message: `Erro enquanto pegava o avatar: ${error}`})
     }
 });
 

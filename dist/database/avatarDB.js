@@ -12,15 +12,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAvatar = exports.updateAvatar = exports.createAvatar = exports.getAvatar = exports.getAvatars = void 0;
+exports.deleteAvatar = exports.updateAvatar = exports.createAvatar = exports.getAvatar = exports.getAvatarsGeral = exports.getAvatarsDesbloqueados = void 0;
 const index_1 = __importDefault(require("./index"));
-function getAvatars() {
+function getAvatarsDesbloqueados(id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const result = yield index_1.default.query('SELECT * FROM avatar');
+        const query = 'select a.*, ((SELECT COUNT(*) FROM usuario u WHERE a.id = u.id_avatar and u.id = $1) = 1) as selecionado, ((SELECT COUNT(*) FROM usuario u WHERE u.id = $1 and a.level_req <= u.user_level) = 1) as desbloqueado from avatar a';
+        const result = yield index_1.default.query(query, [id]);
         return result.rows;
     });
 }
-exports.getAvatars = getAvatars;
+exports.getAvatarsDesbloqueados = getAvatarsDesbloqueados;
+function getAvatarsGeral() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = yield index_1.default.query('SELECT a.*, false as selecionado, (a.level_req = 0) as desbloqueado FROM avatar a');
+        return result.rows;
+    });
+}
+exports.getAvatarsGeral = getAvatarsGeral;
 function getAvatar(id) {
     return __awaiter(this, void 0, void 0, function* () {
         const query = 'SELECT * FROM avatar WHERE id = $1';

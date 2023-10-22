@@ -1,6 +1,8 @@
 class RetornoUserDTO{
+    public url_avatar?: String = ""
+    public token?: String = ""
+    
     constructor(
-        public id: String,
         public nome:String,
         public sobrenome: String,
         public login: String,
@@ -10,9 +12,7 @@ class RetornoUserDTO{
         public user_next_level_exp: number = 100,
         public bloqueado:boolean = false,
         public vidas: number = 3,
-        public id_avatar: number,
-        public url_avatar: String,
-        public token: String
+        public id_avatar: number
     ){}
 }
 
