@@ -3,6 +3,9 @@ import { IRouter } from 'express';
 import UserDTO from '../dto/userDTO';
 import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail, updateVidas } from '../database/userDB'
 import { gerarToken, verificarToken } from '../middleware/auth';
+import RetornoUserDTO from '../dto/retornoUserDTO';
+import { getAvatar } from '../database/avatarDB';
+import AvatarDTO from '../dto/avatarDTO';
 
 const router: IRouter = express.Router();
 
@@ -22,15 +25,17 @@ router.get('/usuario', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
         const id = req.query['id']
-        if(id != undefined){
+        if(id != undefined) {
             const result = await getUser(id!.toString())
-            if(result != undefined){
+            const avatar: AvatarDTO = await getAvatar(result.id_avatar.toString())
+            result.url_avatar = avatar.url
+            if(result != undefined) {
                 res.status(201).json({message: 'Usuário encontrado', user: result})
-            }else{
-                res.status(404).json({message: 'Usuário não encontrado'})
+            } else {
+                res.status(403).json({message: 'Usuário não encontrado'})
             }
         }else {
-            res.status(500).json({message: 'Código de usuário não informado'})
+            res.status(403).json({message: 'Código de usuário não informado'})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -40,11 +45,13 @@ router.get('/usuario', async (req, res) => {
 router.post('/usuario', express.json(), async (req, res) => {
     const novoUsuario: UserDTO = req.body
     try{
-        const newUser = await createUser(novoUsuario);
-        res.status(201).json({message: 'Usuario criado com sucesso', user: newUser})
+        const newUser: RetornoUserDTO = await createUser(novoUsuario);
+        const avatar: AvatarDTO = await getAvatar(newUser.id_avatar.toString())
+        newUser.url_avatar = avatar.url
+        res.status(201).json({message: 'Usuario criado com sucesso', usuario: newUser})
     } catch(error) {
         console.log(error)
-        res.status(500).json({message: 'Erro na criação de usuário'})
+        res.status(500).json({message: `Erro na criação de usuário: ${error}`})
     }
 })
 
@@ -57,10 +64,10 @@ router.put('/usuario', express.json(), async (req, res) => {
             if(result) {
                 res.status(201).json({message: 'Usuário Atualizado'})
             } else {
-                res.status(404).json({message: 'Usuário não encontrado'})
+                res.status(403).json({message: 'Usuário não encontrado'})
             }
         } else {
-            res.status(500).json({message: 'Informações incorretas'})
+            res.status(403).json({message: 'Informações incorretas'})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -76,10 +83,10 @@ router.delete('/usuario', express.json(), async (req, res) => {
             if(result){
                 res.status(201).json({message: 'Usuário deletado'})
             }else{
-                res.status(404).json({message: 'Usuário não encontrado'})
+                res.status(403).json({message: 'Usuário não encontrado'})
             }
         }else {
-            res.status(500).json({message: 'Código de usuário não informado'})
+            res.status(403).json({message: 'Código de usuário não informado'})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -100,11 +107,11 @@ router.post('/usuario/login', express.json(), async (req, res) => {
             const token = gerarToken({id: result.id})
             res.status(201).json({message: 'Usuário logado', token: token}) 
         } else {
-            res.status(404).json({message: 'Informações incorretas'})
+            res.status(403).json({message: 'Informações incorretas'})
         }
     } catch(error) {
         console.log(error)
-        res.status(500).json({message: 'Erro na criação de usuário'})
+        res.status(500).json({message: `Erro na criação de usuário: ${error}`})
     }
 })
 
@@ -117,10 +124,10 @@ router.put('/usuario/block', express.json(), async (req, res) => {
             if(result){
                 res.status(201).json({message: 'Usuário bloqueado'})
             }else{
-                res.status(404).json({message: 'Usuário já bloqueado ou não encontrado'})
+                res.status(403).json({message: 'Usuário já bloqueado ou não encontrado'})
             }
         }else {
-            res.status(500).json({message: 'Código de usuário não informado'})
+            res.status(403).json({message: 'Código de usuário não informado'})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -136,10 +143,10 @@ router.put('/usuario/unblock', express.json(), async (req, res) => {
             if(result){
                 res.status(201).json({message: 'Usuário desbloqueado'})
             }else{
-                res.status(404).json({message: 'Usuário já desbloqueado ou não encontrado'})
+                res.status(403).json({message: 'Usuário já desbloqueado ou não encontrado'})
             }
         }else {
-            res.status(500).json({message: 'Código de usuário não informado'})
+            res.status(403).json({message: 'Código de usuário não informado'})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -155,10 +162,10 @@ router.put('/usuario/restaurar-vida', express.json(), async (req, res) => {
             if(result){
                 res.status(201).json({message: 'Vida restaurada'})
             }else{
-                res.status(500).json({message: 'Vida não foi restaurada'})
+                res.status(403).json({message: 'Vida não foi restaurada'})
             }
         } else {
-            res.status(500).json({message: 'Código de usuário não informado'})
+            res.status(403).json({message: 'Código de usuário não informado'})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })

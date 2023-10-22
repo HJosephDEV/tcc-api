@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const userDB_1 = require("../database/userDB");
 const auth_1 = require("../middleware/auth");
+const avatarDB_1 = require("../database/avatarDB");
 const router = express_1.default.Router();
 exports.default = router;
 router.get('/usuarios', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -33,15 +34,17 @@ router.get('/usuario', (req, res) => __awaiter(void 0, void 0, void 0, function*
         const id = req.query['id'];
         if (id != undefined) {
             const result = yield (0, userDB_1.getUser)(id.toString());
+            const avatar = yield (0, avatarDB_1.getAvatar)(result.id_avatar.toString());
+            result.url_avatar = avatar.url;
             if (result != undefined) {
                 res.status(201).json({ message: 'Usuário encontrado', user: result });
             }
             else {
-                res.status(404).json({ message: 'Usuário não encontrado' });
+                res.status(403).json({ message: 'Usuário não encontrado' });
             }
         }
         else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+            res.status(403).json({ message: 'Código de usuário não informado' });
         }
     }
     else {
@@ -52,11 +55,13 @@ router.post('/usuario', express_1.default.json(), (req, res) => __awaiter(void 0
     const novoUsuario = req.body;
     try {
         const newUser = yield (0, userDB_1.createUser)(novoUsuario);
-        res.status(201).json({ message: 'Usuario criado com sucesso', user: newUser });
+        const avatar = yield (0, avatarDB_1.getAvatar)(newUser.id_avatar.toString());
+        newUser.url_avatar = avatar.url;
+        res.status(201).json({ message: 'Usuario criado com sucesso', usuario: newUser });
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Erro na criação de usuário' });
+        res.status(500).json({ message: `Erro na criação de usuário: ${error}` });
     }
 }));
 router.put('/usuario', express_1.default.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -69,11 +74,11 @@ router.put('/usuario', express_1.default.json(), (req, res) => __awaiter(void 0,
                 res.status(201).json({ message: 'Usuário Atualizado' });
             }
             else {
-                res.status(404).json({ message: 'Usuário não encontrado' });
+                res.status(403).json({ message: 'Usuário não encontrado' });
             }
         }
         else {
-            res.status(500).json({ message: 'Informações incorretas' });
+            res.status(403).json({ message: 'Informações incorretas' });
         }
     }
     else {
@@ -90,11 +95,11 @@ router.delete('/usuario', express_1.default.json(), (req, res) => __awaiter(void
                 res.status(201).json({ message: 'Usuário deletado' });
             }
             else {
-                res.status(404).json({ message: 'Usuário não encontrado' });
+                res.status(403).json({ message: 'Usuário não encontrado' });
             }
         }
         else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+            res.status(403).json({ message: 'Código de usuário não informado' });
         }
     }
     else {
@@ -117,12 +122,12 @@ router.post('/usuario/login', express_1.default.json(), (req, res) => __awaiter(
             res.status(201).json({ message: 'Usuário logado', token: token });
         }
         else {
-            res.status(404).json({ message: 'Informações incorretas' });
+            res.status(403).json({ message: 'Informações incorretas' });
         }
     }
     catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Erro na criação de usuário' });
+        res.status(500).json({ message: `Erro na criação de usuário: ${error}` });
     }
 }));
 router.put('/usuario/block', express_1.default.json(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -135,11 +140,11 @@ router.put('/usuario/block', express_1.default.json(), (req, res) => __awaiter(v
                 res.status(201).json({ message: 'Usuário bloqueado' });
             }
             else {
-                res.status(404).json({ message: 'Usuário já bloqueado ou não encontrado' });
+                res.status(403).json({ message: 'Usuário já bloqueado ou não encontrado' });
             }
         }
         else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+            res.status(403).json({ message: 'Código de usuário não informado' });
         }
     }
     else {
@@ -156,11 +161,11 @@ router.put('/usuario/unblock', express_1.default.json(), (req, res) => __awaiter
                 res.status(201).json({ message: 'Usuário desbloqueado' });
             }
             else {
-                res.status(404).json({ message: 'Usuário já desbloqueado ou não encontrado' });
+                res.status(403).json({ message: 'Usuário já desbloqueado ou não encontrado' });
             }
         }
         else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+            res.status(403).json({ message: 'Código de usuário não informado' });
         }
     }
     else {
@@ -177,11 +182,11 @@ router.put('/usuario/restaurar-vida', express_1.default.json(), (req, res) => __
                 res.status(201).json({ message: 'Vida restaurada' });
             }
             else {
-                res.status(500).json({ message: 'Vida não foi restaurada' });
+                res.status(403).json({ message: 'Vida não foi restaurada' });
             }
         }
         else {
-            res.status(500).json({ message: 'Código de usuário não informado' });
+            res.status(403).json({ message: 'Código de usuário não informado' });
         }
     }
     else {
