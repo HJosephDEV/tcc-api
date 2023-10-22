@@ -9,6 +9,7 @@ import * as path from 'path';
 import router from './routes';
 
 dotenv.config();
+
 moduleAlias.addAlias('@', path.join(__dirname, 'src'));
 
 const app = express();
