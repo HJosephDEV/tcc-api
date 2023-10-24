@@ -102,15 +102,16 @@ router.put('/usuario/trocar-dados', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
         try {
+            const id = verificacao['id']
             const dadosNovos: UserDTO = req.body
             if(dadosNovos != undefined) {
-                const usuarioAntigo: UserDTO = await getUser(dadosNovos!.id.toString())
+                const usuarioAntigo: UserDTO = await getUser(id)
                 if(usuarioAntigo == undefined || usuarioAntigo == null) {
                     res.status(404).json({message: 'Usuário não encontrado'})
                     return
                 }
                 const usuarioAtualizado = criarUsuarioAtualizado(usuarioAntigo, dadosNovos)
-                const result = await updateUserDados(dadosNovos!.id.toString(), usuarioAtualizado)
+                const result = await updateUserDados(id, usuarioAtualizado)
                 if(result) {
                     res.status(201).json({message: 'Usuário Atualizado'})
                 } else {
@@ -132,15 +133,16 @@ router.put('/usuario/trocar-avatar', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
         try {
+            const id = verificacao['id']
             const dadosNovos: UserDTO = req.body
             if(dadosNovos != undefined) {
-                const usuarioAntigo: UserDTO = await getUser(dadosNovos!.id.toString())
+                const usuarioAntigo: UserDTO = await getUser(id)
                 if(usuarioAntigo == undefined || usuarioAntigo == null) {
                     res.status(404).json({message: 'Usuário não encontrado'})
                     return
                 }
                 const usuarioAtualizado = criarUsuarioAtualizado(usuarioAntigo, dadosNovos)
-                const result = await updateUserAvatar(dadosNovos!.id.toString(), usuarioAtualizado)
+                const result = await updateUserAvatar(id, usuarioAtualizado)
                 if(result) {
                     res.status(201).json({message: 'Usuário Atualizado'})
                 } else {
@@ -162,15 +164,16 @@ router.put('/usuario/trocar-senha', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
         try {
+            const id = verificacao['id']
             const dadosNovos: UserDTO = req.body
             if(dadosNovos != undefined){
-                const usuarioAntigo: UserDTO = await getUser(dadosNovos!.id.toString())
+                const usuarioAntigo: UserDTO = await getUser(id)
                 if(usuarioAntigo == undefined || usuarioAntigo == null) {
                     res.status(404).json({message: 'Usuário não encontrado'})
                     return
                 }
                 const usuarioAtualizado = criarUsuarioAtualizado(usuarioAntigo, dadosNovos)
-                const result = await updateUserSenha(dadosNovos!.id.toString(), usuarioAtualizado)
+                const result = await updateUserSenha(id, usuarioAtualizado)
                 if(result) {
                     res.status(201).json({message: 'Usuário Atualizado'})
                 } else {
