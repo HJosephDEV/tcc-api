@@ -52,8 +52,8 @@ router.get('/modulo', async (req, res) => {
 router.post('/modulo', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
-        const novoModulo: ModuloDTO = req.body
         try{
+            const novoModulo: ModuloDTO = req.body
             const moduloAdicionado = await addModulo(novoModulo);
             res.status(201).json({message: 'Modulo criado com sucesso', data: moduloAdicionado})
         } catch(error) {
@@ -143,9 +143,14 @@ router.put('/modulo/verificar-conclusao', async (req, res) => {
 });
 
 function verificarTokenRequest(req: Request) {
-    const token = req.header('Authorization')
-    const decoded = verificarToken(token!.split(" ").at(-1)!)
-    return decoded
+    try {
+        const token = req.header('Authorization')
+        const decoded = verificarToken(token!.split(" ").at(-1)!)
+        return decoded
+    } catch (error) {
+        console.log(error)
+        return
+    }
 }
 
 async function salvarConclusaoModulo(moduloId: String, usuarioId: String) {

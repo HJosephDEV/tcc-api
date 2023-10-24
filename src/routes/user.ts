@@ -207,12 +207,14 @@ router.put('/usuario/restaurar-vida', express.json(), async (req, res) => {
         try {
             const id = verificacao['id']
             if(id != undefined){
-                const result = await updateVidas(id!.toString(), 1)
-                if(result){
-                    res.status(201).json({message: 'Vida restaurada'})
-                }else{
+                var user = await getUser(id)
+                if(user.vidas >= 3) {
                     res.status(403).json({message: 'Vida não foi restaurada'})
+                    return
                 }
+                let vidas = user.vidas + 1
+                const result = await updateVidas(id!.toString(), vidas)
+                res.status(201).json({message: 'Vida restaurada'})
             } else {
                 res.status(403).json({message: 'Código de usuário não informado'})
             }

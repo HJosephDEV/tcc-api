@@ -13,8 +13,13 @@ export default router;
 router.get('/tarefas', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
-        const result = await getTarefas()
-        res.status(201).json({message: 'Tarefas encontrado', tarefas: result})
+        try {
+            const result = await getTarefas()
+            res.status(201).json({message: 'Tarefas encontrado', data: result})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto pegava todas as tarefas: ${error}`})
+        }
     } else {
         res.status(401).json({ message: 'Token inválido' })
     }
@@ -23,16 +28,20 @@ router.get('/tarefas', async (req, res) => {
 router.get('/tarefa', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
-        const id = req.query['id']
-        if(id != undefined) {
+        try {
+            const id = req.query['id']
+            if(id == null || id == undefined) {
+                res.status(403).json({message: 'Código do Tarefa não informado'})
+            }
             const result = await getTarefa(id!.toString())
             if(result != undefined) {
-                res.status(201).json({message: 'Tarefa encontrado', tarefa: result})
+                res.status(201).json({message: 'Tarefa encontrado', data: result})
             } else {
                 res.status(404).json({message: 'Tarefa não encontrado'})
             }
-        } else {
-            res.status(500).json({message: 'Código do Tarefa não informado'})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto pegava uma tarefa: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -51,10 +60,10 @@ router.post('/tarefa', async (req, res) => {
                 respostas.push(result)
             }
             newTask.respostas = respostas
-            res.status(201).json({message: 'Tarefa criada com sucesso', task: newTask})
+            res.status(201).json({message: 'Tarefa criada com sucesso', data: newTask})
         } catch(error) {
             console.log(error)
-            res.status(500).json({message: 'Erro na criação de tarefa'})
+            res.status(500).json({message: `Erro enquanto criava a tarefa: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -64,16 +73,21 @@ router.post('/tarefa', async (req, res) => {
 router.put('/tarefa', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
-        const tarefaAtualizado: TarefaDTO = req.body
-        if(tarefaAtualizado != undefined){
+        try {
+            const tarefaAtualizado: TarefaDTO = req.body
+            if(tarefaAtualizado == null || tarefaAtualizado == undefined) {
+                res.status(403).json({message: 'Informações incorretas'})
+                return
+            }
             const result = await updateTarefa(tarefaAtualizado!.id.toString(), tarefaAtualizado)
             if(result) {
                 res.status(201).json({message: 'Tarefa Atualizado'})
             } else {
-                res.status(403).json({message: 'Tarefa não encontrado'})
+                res.status(404).json({message: 'Tarefa não encontrado'})
             }
-        }else {
-            res.status(403).json({message: 'Informações incorretas'})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto atualizava a tarefa: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -83,16 +97,21 @@ router.put('/tarefa', async (req, res) => {
 router.delete('/tarefa', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
-        const id = req.query['id']
-        if(id != undefined){
-            const result = await deleteTarefa(id!.toString())
-            if(result){
-                res.status(201).json({message: 'Tarefa deletado'})
-            }else{
-                res.status(403).json({message: 'Tarefa não encontrado'})
+        try {
+            const id = req.query['id']
+            if(id == null || id == undefined) {
+                res.status(403).json({message: 'Código do tarefa não informado'})
+                return
             }
-        } else {
-            res.status(403).json({message: 'Código do tarefa não informado'})
+            const result = await deleteTarefa(id!.toString())
+            if(result) {
+                res.status(201).json({message: 'Tarefa deletado'})
+            } else {
+                res.status(404).json({message: 'Tarefa não encontrado'})
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto deletava a tarefa: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -100,7 +119,12 @@ router.delete('/tarefa', async (req, res) => {
 });
 
 function verificarTokenRequest(req: Request) {
-    const token = req.header('Authorization')
-    const decoded = verificarToken(token!.split(" ").at(-1)!)
-    return decoded
+    try {
+        const token = req.header('Authorization')
+        const decoded = verificarToken(token!.split(" ").at(-1)!)
+        return decoded
+    } catch (error) {
+        console.log(error)
+        return
+    }
 }

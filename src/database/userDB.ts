@@ -69,14 +69,9 @@ export async function unblockUser(id: String) {
 }
 
 export async function updateVidas(id: string, vidas: number) {
-    var user = await getUser(id)
-    if(user.vidas < 3) {
-        const query = 'UPDATE usuario SET vidas = $1 WHERE id = $2'
-        const values = [user.vidas + vidas, id]
-        const result = await pool.query(query, values)
-        return result.rowCount > 0
-    } else {
-        return false
-    }
-    
+    const query = 'UPDATE usuario SET vidas = $1 WHERE id = $2'
+    const values = [vidas, id]
+    const result = await pool.query(query, values)
+    return result.rowCount > 0
+
 }
