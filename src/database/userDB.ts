@@ -35,6 +35,28 @@ export async function updateUser(id: string, usuarioAtualizado: UserDTO, changeP
     return result.rowCount > 0
 }
 
+export async function updateUserDados(id: string, usuarioAtualizado: UserDTO) {
+    const query = 'UPDATE usuario SET nome = $1, sobrenome = $2, login = $3, email = $4 WHERE id = $5'
+    const values = [usuarioAtualizado.nome, usuarioAtualizado.sobrenome, usuarioAtualizado.login, usuarioAtualizado.email, id]
+    const result = await pool.query(query, values)
+    return result.rowCount > 0
+}
+
+export async function updateUserAvatar(id: string, usuarioAtualizado: UserDTO) {
+    const query = 'UPDATE usuario SET id_avatar = $1 WHERE id = $2'
+    const values = [usuarioAtualizado.id_avatar, id]
+    const result = await pool.query(query, values)
+    return result.rowCount > 0
+}
+
+export async function updateUserSenha(id: string, usuarioAtualizado: UserDTO) {
+    const query = 'UPDATE usuario SET senha = $1 WHERE id = $2'
+    var hash = await bcrypt.hash(usuarioAtualizado.senha.toString(), 10)
+    const values = [hash, id]
+    const result = await pool.query(query, values)
+    return result.rowCount > 0
+}
+
 export async function deleteUser(id: string) {
     const query = 'DELETE FROM usuario WHERE id = $1'
     const values = [id]

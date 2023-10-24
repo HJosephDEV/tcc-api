@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import UserDTO from '../dto/userDTO';
-import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail, updateVidas } from '../database/userDB'
+import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail, updateVidas, updateUserDados, updateUserAvatar, updateUserSenha } from '../database/userDB'
 import { gerarToken, verificarToken } from '../middleware/auth';
 import RetornoUserDTO from '../dto/retornoUserDTO';
 import { getAvatar } from '../database/avatarDB';
@@ -81,6 +81,96 @@ router.put('/usuario', express.json(), async (req, res) => {
                 }
                 const usuarioAtualizado = criarUsuarioAtualizado(usuarioAntigo, dadosNovos)
                 const result = await updateUser(dadosNovos!.id.toString(), usuarioAtualizado, !(dadosNovos.senha == null || dadosNovos.senha == undefined))
+                if(result) {
+                    res.status(201).json({message: 'Usuário Atualizado'})
+                } else {
+                    res.status(404).json({message: 'Usuário não encontrado'})
+                }
+            } else {
+                res.status(403).json({message: 'Informações incorretas'})
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro na atualização de usuário: ${error}`})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
+    }
+})
+
+router.put('/usuario/trocar-dados', express.json(), async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if(verificacao) {
+        try {
+            const dadosNovos: UserDTO = req.body
+            if(dadosNovos != undefined) {
+                const usuarioAntigo: UserDTO = await getUser(dadosNovos!.id.toString())
+                if(usuarioAntigo == undefined || usuarioAntigo == null) {
+                    res.status(404).json({message: 'Usuário não encontrado'})
+                    return
+                }
+                const usuarioAtualizado = criarUsuarioAtualizado(usuarioAntigo, dadosNovos)
+                const result = await updateUserDados(dadosNovos!.id.toString(), usuarioAtualizado)
+                if(result) {
+                    res.status(201).json({message: 'Usuário Atualizado'})
+                } else {
+                    res.status(404).json({message: 'Usuário não encontrado'})
+                }
+            } else {
+                res.status(403).json({message: 'Informações incorretas'})
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro na atualização de usuário: ${error}`})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
+    }
+})
+
+router.put('/usuario/trocar-avatar', express.json(), async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if(verificacao) {
+        try {
+            const dadosNovos: UserDTO = req.body
+            if(dadosNovos != undefined) {
+                const usuarioAntigo: UserDTO = await getUser(dadosNovos!.id.toString())
+                if(usuarioAntigo == undefined || usuarioAntigo == null) {
+                    res.status(404).json({message: 'Usuário não encontrado'})
+                    return
+                }
+                const usuarioAtualizado = criarUsuarioAtualizado(usuarioAntigo, dadosNovos)
+                const result = await updateUserAvatar(dadosNovos!.id.toString(), usuarioAtualizado)
+                if(result) {
+                    res.status(201).json({message: 'Usuário Atualizado'})
+                } else {
+                    res.status(404).json({message: 'Usuário não encontrado'})
+                }
+            } else {
+                res.status(403).json({message: 'Informações incorretas'})
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro na atualização de usuário: ${error}`})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
+    }
+})
+
+router.put('/usuario/trocar-senha', express.json(), async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if(verificacao) {
+        try {
+            const dadosNovos: UserDTO = req.body
+            if(dadosNovos != undefined){
+                const usuarioAntigo: UserDTO = await getUser(dadosNovos!.id.toString())
+                if(usuarioAntigo == undefined || usuarioAntigo == null) {
+                    res.status(404).json({message: 'Usuário não encontrado'})
+                    return
+                }
+                const usuarioAtualizado = criarUsuarioAtualizado(usuarioAntigo, dadosNovos)
+                const result = await updateUserSenha(dadosNovos!.id.toString(), usuarioAtualizado)
                 if(result) {
                     res.status(201).json({message: 'Usuário Atualizado'})
                 } else {
