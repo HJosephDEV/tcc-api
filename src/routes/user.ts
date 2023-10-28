@@ -342,7 +342,7 @@ router.put('/usuario/restaurar-vida', express.json(), async (req, res) => {
 })
 
 function criarUsuarioRetorno(user: UserDTO) {
-    return new RetornoUserDTO(user.nome, user.sobrenome, user.login, user.email, user.user_level, user.user_exp, user.user_next_level_exp, user.bloqueado, user.vidas, user.id_avatar)
+    return new RetornoUserDTO(user.nome, user.sobrenome, user.login, user.email, user.user_level, user.user_exp, user.user_next_level_exp, user.bloqueado, user.vidas, user.id_avatar, user.is_admin)
 }
 
 function criarUsuarioAtualizado(userAntigo: UserDTO, userNovo: UserDTO) {

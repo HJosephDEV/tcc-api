@@ -12,7 +12,8 @@ class RetornoUserDTO{
         public user_next_level_exp: number = 100,
         public bloqueado:boolean = false,
         public vidas: number = 3,
-        public id_avatar: number
+        public id_avatar: number,
+        public is_admin: boolean
     ){}
 }
 
