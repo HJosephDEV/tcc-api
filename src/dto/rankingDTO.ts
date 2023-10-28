@@ -5,6 +5,7 @@ class RankingDTO{
         public nome: String,
         public user_level: number,
         public user_exp: number,
+        public url: String,
         public rank: number
     ){}
 }

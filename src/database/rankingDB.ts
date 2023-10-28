@@ -2,7 +2,7 @@ import RankingDTO from '../dto/rankingDTO';
 import pool from './index';
 
 export async function getUsersRanking() {
-    const result = await pool.query('SELECT nome, user_level, user_exp FROM ranking ORDER BY user_level DESC, user_exp DESC')
+    const result = await pool.query('SELECT r.nome, r.user_level, r.user_exp, a.url FROM ranking r JOIN usuario u ON u.id = r.id_usuario JOIN avatar a ON a.id = u.id_avatar ORDER BY user_level DESC, user_exp DESC')
     return result.rows
 }
 
