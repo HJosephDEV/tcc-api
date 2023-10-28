@@ -13,6 +13,18 @@ export async function getUser(id: string) {
     return result.rows[0]
 }
 
+export async function getUsersByLevelAndExp() {
+    const query = 'SELECT u.id as id_usuario, u.nome, u.user_level, u.user_exp FROM USUARIO u ORDER BY u.user_level DESC, u.user_exp DESC LIMIT 100'
+    const result = await pool.query(query)
+    return result.rows
+}
+
+export async function getUsersLessThenThreeLives() {
+    const query = 'SELECT id, vidas FROM usuario WHERE vidas < 3'
+    const result = await pool.query(query)
+    return result.rows
+}
+
 export async function createUser(user: UserDTO) {
     const query = 'INSERT INTO usuario (nome, sobrenome, login, email, senha, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)'+
     'RETURNING id, nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin'
@@ -95,5 +107,4 @@ export async function updateVidas(id: string, vidas: number) {
     const values = [vidas, id]
     const result = await pool.query(query, values)
     return result.rowCount > 0
-
 }

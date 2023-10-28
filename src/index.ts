@@ -7,6 +7,7 @@ import 'module-alias/register';
 import moduleAlias from 'module-alias';
 import * as path from 'path';
 import router from './routes';
+import { criarIntervals } from './routes/user';
 
 dotenv.config();
 
@@ -23,3 +24,5 @@ app.use(express.static('public'));
 app.use(express.json());
 app.use(cors());
 app.use('/', router);
+
+criarIntervals()

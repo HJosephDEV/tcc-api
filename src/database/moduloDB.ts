@@ -6,6 +6,13 @@ export async function getModulos() {
     return result.rows
 }
 
+export async function getModulosIniciados(idUsuario: String) {
+    const query = 'SELECT * FROM MODULO m where (SELECT (COUNT(*) > 0) FROM tarefa_feita tf JOIN tarefa t ON tf.id_tarefa = t.id WHERE t.id_modulo = m.id and id_usuario = $1) = true'
+    const values = [idUsuario]
+    const result = await pool.query(query, values);
+    return result.rows
+}
+
 export async function getModulo(id: String) {
     const query = 'SELECT * FROM modulo where id = $1'
     const result = await pool.query(query, [id])

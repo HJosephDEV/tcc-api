@@ -1,12 +1,14 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import UserDTO from '../dto/userDTO';
-import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail, updateVidas, updateUserDados, updateUserAvatar, updateUserSenha } from '../database/userDB'
+import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail, updateVidas, updateUserDados, updateUserAvatar, updateUserSenha, getUsersByLevelAndExp, getUsersLessThenThreeLives } from '../database/userDB'
 import { gerarToken, verificarToken } from '../middleware/auth';
 import RetornoUserDTO from '../dto/retornoUserDTO';
 import { getAvatar } from '../database/avatarDB';
 import AvatarDTO from '../dto/avatarDTO';
 import bcrypt, { hash } from 'bcrypt';
+import RankingDTO from '../dto/rankingDTO';
+import { createUserRanking, deleteAllUsersRanking, getUsersRanking } from '../database/rankingDB';
 
 const router: IRouter = express.Router();
 
@@ -49,6 +51,25 @@ router.get('/usuario', async (req, res) => {
             }
         }else {
             res.status(403).json({message: 'Código de usuário não informado'})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
+    }
+});
+
+router.get('/usuario/ranking', async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if(verificacao) {
+        try {
+            const result: RankingDTO[] = await getUsersRanking()
+            for (let index = 0; index < result.length; index++) {
+                const element = result[index];
+                element.rank = index + 1
+            }
+            res.status(201).json({message: 'Ranking atual', data: result})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto pegava o ranking: ${error}`})
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
@@ -351,4 +372,36 @@ function verificarTokenRequest(req: Request) {
         console.log(error)
         return
     }
+}
+
+async function updateRanking () {
+    const usuarios: RankingDTO[] = await getUsersByLevelAndExp()
+    if(usuarios.length > 0) {
+        await deleteAllUsersRanking()
+        for (let index = 0; index < usuarios.length; index++) {
+            const element = usuarios[index];
+            await createUserRanking(element)   
+        }
+    }
+    console.log('Ranking updated');
+}
+
+async function updateLives() {
+    const usuarios: UserDTO[] = await getUsersLessThenThreeLives()
+    if(usuarios.length > 0) {
+        for (let index = 0; index < usuarios.length; index++) {
+            const element = usuarios[index];
+            element.vidas++
+            await updateVidas(element.id.toString(), element.vidas)   
+        }
+    }
+    console.log('User lives updated');
+}
+
+export function criarIntervals() {
+    //300000 = 5 minutos
+    //60000 = 1 minutos
+    const intervalTime = 60000
+    setInterval(updateRanking, intervalTime);
+    setInterval(updateLives, intervalTime);
 }
