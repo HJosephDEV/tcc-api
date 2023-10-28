@@ -14,7 +14,7 @@ export async function getUser(id: string) {
 }
 
 export async function getUsersByLevelAndExp() {
-    const query = 'SELECT u.id as id_usuario, u.nome, u.user_level, u.user_exp, a.url FROM usuario u JOIN avatar a ON a.id = u.id_avatar ORDER BY u.user_level DESC, u.user_exp DESC LIMIT 100'
+    const query = 'SELECT u.id as id_usuario, u.nome, u.user_level, u.user_exp FROM USUARIO u ORDER BY u.user_level DESC, u.user_exp DESC LIMIT 100'
     const result = await pool.query(query)
     return result.rows
 }
