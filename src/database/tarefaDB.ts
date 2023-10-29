@@ -26,16 +26,22 @@ export async function getTarefa(id: String) {
     return result.rows[0]
 }
 
+export async function getTarefaInformacaoGeral(id: String) {
+    const query = 'SELECT id, nome, conteudo, tipo, id_modulo FROM tarefa where id = $1'
+    const result = await pool.query(query, [id])
+    return result.rows[0]
+}
+
 export async function addTarefa(tarefa: TarefaDTO) {
     const query = 'INSERT INTO tarefa (nome, conteudo, tipo, tarefa_exp, id_modulo) VALUES ($1, $2, $3, $4, $5) RETURNING *'
-    const values = [tarefa.nome, tarefa.conteudo, tarefa.tipo, tarefa.tarefa_exp, tarefa.idModulo]
+    const values = [tarefa.nome, tarefa.conteudo, tarefa.tipo, tarefa.tarefa_exp, tarefa.id_modulo]
     const result = await pool.query(query, values)
     return result.rows[0]
 }
 
 export async function updateTarefa(id: String, updatedTarefa: TarefaDTO) {
     const query = 'UPDATE tarefa SET nome = $1, conteudo = $2, tipo = $3, tarefa_exp = $4, id_modulo = $5 WHERE id = $6'
-    const values = [updatedTarefa.nome, updatedTarefa.conteudo, updatedTarefa.tipo, updatedTarefa.tarefa_exp, updatedTarefa.idModulo, id]
+    const values = [updatedTarefa.nome, updatedTarefa.conteudo, updatedTarefa.tipo, updatedTarefa.tarefa_exp, updatedTarefa.id_modulo, id]
     const result = await pool.query(query, values)
     return result.rowCount > 0
 }

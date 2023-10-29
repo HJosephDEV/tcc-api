@@ -1,15 +1,13 @@
 import RespostaDTO from "./respostaDTO";
 
-class TarefaDTO{
+class RetornoTarefaDTO{
     constructor(
         public id: String,
         public nome:String,
         public conteudo:String,
         public tipo:number,
-        public tarefa_exp:number,
-        public id_modulo: String,
         public respostas: RespostaDTO[]
     ){}
 }
 
-export default TarefaDTO;
+export default RetornoTarefaDTO;

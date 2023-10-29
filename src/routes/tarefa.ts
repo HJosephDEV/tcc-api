@@ -1,12 +1,13 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import TarefaDTO from '../dto/tarefaDTO';
-import { getTarefas, getTarefa, addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule, getTarefasConcluidasFromModule } from '../database/tarefaDB'
-import { addResposta } from '../database/respostaDB'
+import { getTarefas, getTarefa, addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule, getTarefasConcluidasFromModule, getTarefaInformacaoGeral } from '../database/tarefaDB'
+import { addResposta, getRespostasFromTarefa } from '../database/respostaDB'
 import RespostaDTO from '../dto/respostaDTO';
 import { verificarToken } from '../middleware/auth';
 import { getModuloProgresso } from '../database/moduloDB';
 import ProgressoModuloDTO from '../dto/progressoModuloDTO';
+import RetornoTarefaDTO from '../dto/retornoTarefaDTO';
 
 const router: IRouter = express.Router();
 
@@ -39,7 +40,7 @@ router.get('/modulo-tarefas', async (req, res) => {
             }
             const moduloInformacao: ProgressoModuloDTO = await getModuloProgresso(idUser, idModule!.toString())
             if(moduloInformacao == null || moduloInformacao == undefined) {
-                res.status(403).json({message: 'Módulo não encontrado'})
+                res.status(404).json({message: 'Módulo não encontrado'})
                 return
             }
             const result = await getTarefasFromModule(idUser, idModule!.toString())
@@ -61,17 +62,29 @@ router.get('/tarefa', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
         try {
+            const idUser = verificacao['id']
             const id = req.query['id']
             if(id == null || id == undefined) {
                 res.status(403).json({message: 'Código do Tarefa não informado'})
                 return
             }
-            const result = await getTarefa(id!.toString())
-            if(result != undefined) {
-                res.status(201).json({message: 'Tarefa encontrado', data: result})
-            } else {
+            const result: TarefaDTO = await getTarefaInformacaoGeral(id!.toString())
+            if(result == undefined || result == null) {
                 res.status(404).json({message: 'Tarefa não encontrado'})
+                return
             }
+            const moduloInformacao: ProgressoModuloDTO = await getModuloProgresso(idUser, result!.id_modulo)
+            if(moduloInformacao == null || moduloInformacao == undefined) {
+                res.status(404).json({message: 'Módulo não encontrado'})
+                return
+            }
+            var percProgresso = 0
+            if(moduloInformacao.total > 0) {
+                percProgresso = (moduloInformacao.concluido / moduloInformacao.total) * 100
+            }
+            const respostaTarefa: RespostaDTO[] = await getRespostasFromTarefa(result.id)
+            const retornoTarefa: RetornoTarefaDTO = criarTarefaRetorno(result, respostaTarefa)
+            res.status(201).json({message: 'Tarefa encontrado', data: {id_modulo: moduloInformacao.id, nome_modulo: moduloInformacao.nome, perc_completo: percProgresso, tarefa: retornoTarefa}})
         } catch (error) {
             console.log(error)
             res.status(500).json({message: `Erro enquanto pegava uma tarefa: ${error}`})
@@ -160,4 +173,8 @@ function verificarTokenRequest(req: Request) {
         console.log(error)
         return
     }
+}
+
+function criarTarefaRetorno(tarefa: TarefaDTO, respostas: RespostaDTO[]) {
+    return new RetornoTarefaDTO(tarefa.id, tarefa.nome, tarefa.conteudo, tarefa.tipo, respostas)
 }

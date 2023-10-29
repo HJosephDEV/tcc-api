@@ -8,6 +8,13 @@ export async function getRespostas(id: String) {
     return result.rows
 }
 
+export async function getRespostasFromTarefa(id: String) {
+    const query = 'SELECT id, descricao, id_tarefa FROM resposta where id_tarefa = $1'
+    const value = [id]
+    const result = await pool.query(query, value);
+    return result.rows
+}
+
 export async function getResposta(id: String) {
     const query = 'SELECT * FROM resposta where id = $1'
     const values = [id]
