@@ -19,6 +19,14 @@ export async function getModulo(id: String) {
     return result.rows[0]
 }
 
+export async function getModuloProgresso(idUser: String, idModule: String) {
+    const query = 'select m.id, m.nome, (select count(*) from tarefa t where id_modulo = $1) as total, (select count(*) from tarefa t join tarefa_feita tf on t.id = tf.id_tarefa and t.id_modulo = $2 where tf.id_usuario = $3) as concluido from modulo m where id = $4'
+    const values = [idModule, idModule, idUser, idModule]
+    const result = await pool.query(query, values)
+    return result.rows[0]
+}
+
+
 export async function addModulo(modulo: ModuloDTO) {
     const query = 'INSERT INTO modulo (nome, descricao) VALUES ($1, $2) RETURNING *'
     const values = [modulo.nome, modulo.descricao]

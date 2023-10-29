@@ -1,10 +1,12 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import TarefaDTO from '../dto/tarefaDTO';
-import { getTarefas, getTarefa, addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule } from '../database/tarefaDB'
+import { getTarefas, getTarefa, addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule, getTarefasConcluidasFromModule } from '../database/tarefaDB'
 import { addResposta } from '../database/respostaDB'
 import RespostaDTO from '../dto/respostaDTO';
 import { verificarToken } from '../middleware/auth';
+import { getModuloProgresso } from '../database/moduloDB';
+import ProgressoModuloDTO from '../dto/progressoModuloDTO';
 
 const router: IRouter = express.Router();
 
@@ -35,7 +37,16 @@ router.get('/modulo-tarefas', async (req, res) => {
                 res.status(403).json({message: 'Código do módulo não informado'})
             }
             const result = await getTarefasFromModule(idUser, idModule!.toString())
-            res.status(201).json({message: 'Tarefas encontrado', data: result})
+            const moduloInformacao: ProgressoModuloDTO = await getModuloProgresso(idUser, idModule!.toString())
+            if(moduloInformacao == null || moduloInformacao == undefined) {
+                res.status(403).json({message: 'Módulo não encontrado'})
+                return
+            }
+            var percProgresso = 0
+            if(moduloInformacao.total > 0) {
+                percProgresso = (moduloInformacao.concluido / moduloInformacao.total) * 100
+            }
+            res.status(201).json({message: 'Tarefas encontrado', data: {id_modulo: moduloInformacao.id, nome_modulo: moduloInformacao.nome, perc_completo: percProgresso, tarefas: result}})
         } catch (error) {
             console.log(error)
             res.status(500).json({message: `Erro enquanto pegava todas as tarefas: ${error}`})
@@ -72,7 +83,7 @@ router.post('/tarefa', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
         const novaTarefa: TarefaDTO = req.body
-        try{
+        try {
             const newTask: TarefaDTO = await addTarefa(novaTarefa);
             var respostas: RespostaDTO[] = []
             for (const resposta of novaTarefa.respostas) {
