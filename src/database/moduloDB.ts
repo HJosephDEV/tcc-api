@@ -20,15 +20,15 @@ export async function getModulo(id: String) {
 }
 
 export async function addModulo(modulo: ModuloDTO) {
-    const query = 'INSERT INTO modulo (nome, descricao, id_curso) VALUES ($1, $2, $3) RETURNING *'
-    const values = [modulo.nome, modulo.descricao, modulo.idCurso]
+    const query = 'INSERT INTO modulo (nome, descricao) VALUES ($1, $2) RETURNING *'
+    const values = [modulo.nome, modulo.descricao]
     const result = await pool.query(query, values)
     return result.rows[0]
 }
 
 export async function updateModulo(id: String, updatedModulo: ModuloDTO) {
-    const query = 'UPDATE modulo SET nome = $1, descricao = $2, id_curso = $3 WHERE id = $4'
-    const values = [updatedModulo.nome, updatedModulo.descricao, updatedModulo.idCurso, id]
+    const query = 'UPDATE modulo SET nome = $1, descricao = $2 WHERE id = $3'
+    const values = [updatedModulo.nome, updatedModulo.descricao, id]
     const result = await pool.query(query, values)
     return result.rowCount > 0
 }
