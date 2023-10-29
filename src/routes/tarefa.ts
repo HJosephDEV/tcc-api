@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import TarefaDTO from '../dto/tarefaDTO';
-import { getTarefas, getTarefa, addTarefa, deleteTarefa, updateTarefa } from '../database/tarefaDB'
+import { getTarefas, getTarefa, addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule } from '../database/tarefaDB'
 import { addResposta } from '../database/respostaDB'
 import RespostaDTO from '../dto/respostaDTO';
 import { verificarToken } from '../middleware/auth';
@@ -15,6 +15,26 @@ router.get('/tarefas', async (req, res) => {
     if (verificacao) {
         try {
             const result = await getTarefas()
+            res.status(201).json({message: 'Tarefas encontrado', data: result})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto pegava todas as tarefas: ${error}`})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
+    }
+});
+
+router.get('/modulo-tarefas', async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if (verificacao) {
+        try {
+            const idUser = verificacao['id']
+            const idModule = req.query['id_module']
+            if(idModule == null || idModule == undefined) {
+                res.status(403).json({message: 'Código do módulo não informado'})
+            }
+            const result = await getTarefasFromModule(idUser, idModule!.toString())
             res.status(201).json({message: 'Tarefas encontrado', data: result})
         } catch (error) {
             console.log(error)

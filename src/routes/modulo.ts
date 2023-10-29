@@ -2,7 +2,7 @@ import express, { Request } from 'express';
 import { IRouter } from 'express';
 import ModuloDTO from '../dto/moduloDTO';
 import { getModulo, getModulos, addModulo, updateModulo, deleteModulo, getModulosIniciados } from '../database/moduloDB'
-import { getTarefasFromModulo } from '../database/tarefaDB'
+import { getTarefasConcluidasFromModule } from '../database/tarefaDB'
 import { salvarModuloFeito, verificarModuloFeito } from '../database/moduloFeitoDB'
 import { verificarToken } from '../middleware/auth';
 
@@ -140,7 +140,7 @@ router.put('/modulo/verificar-conclusao', async (req, res) => {
                 return
             }
 
-            const result = await getTarefasFromModulo(modulo.toString())
+            const result = await getTarefasConcluidasFromModule(modulo.toString())
             const tarefasModulo = result['tarefas'] 
             const tarefasConcluida = result['tarefa_feitas']
             if(tarefasModulo != 0 && tarefasModulo == tarefasConcluida) {
