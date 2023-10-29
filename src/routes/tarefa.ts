@@ -36,12 +36,12 @@ router.get('/modulo-tarefas', async (req, res) => {
             if(idModule == null || idModule == undefined) {
                 res.status(403).json({message: 'Código do módulo não informado'})
             }
-            const result = await getTarefasFromModule(idUser, idModule!.toString())
             const moduloInformacao: ProgressoModuloDTO = await getModuloProgresso(idUser, idModule!.toString())
             if(moduloInformacao == null || moduloInformacao == undefined) {
                 res.status(403).json({message: 'Módulo não encontrado'})
                 return
             }
+            const result = await getTarefasFromModule(idUser, idModule!.toString())
             var percProgresso = 0
             if(moduloInformacao.total > 0) {
                 percProgresso = (moduloInformacao.concluido / moduloInformacao.total) * 100
