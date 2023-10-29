@@ -35,6 +35,7 @@ router.get('/modulo-tarefas', async (req, res) => {
             const idModule = req.query['id_module']
             if(idModule == null || idModule == undefined) {
                 res.status(403).json({message: 'Código do módulo não informado'})
+                return
             }
             const moduloInformacao: ProgressoModuloDTO = await getModuloProgresso(idUser, idModule!.toString())
             if(moduloInformacao == null || moduloInformacao == undefined) {
@@ -63,6 +64,7 @@ router.get('/tarefa', async (req, res) => {
             const id = req.query['id']
             if(id == null || id == undefined) {
                 res.status(403).json({message: 'Código do Tarefa não informado'})
+                return
             }
             const result = await getTarefa(id!.toString())
             if(result != undefined) {
