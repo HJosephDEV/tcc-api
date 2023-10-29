@@ -401,7 +401,7 @@ async function updateLives() {
 export function criarIntervals() {
     //300000 = 5 minutos
     //60000 = 1 minutos
-    const intervalTime = 60000
+    const intervalTime = 300000
     setInterval(updateRanking, intervalTime);
     setInterval(updateLives, intervalTime);
 }
