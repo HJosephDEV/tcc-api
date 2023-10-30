@@ -1,5 +1,6 @@
 import pool from './index';
 import RespostaDTO from '../dto/respostaDTO';
+import { url } from 'inspector';
 
 export async function getRespostas(id: String) {
     const query = 'SELECT * FROM resposta where id_tarefa = $1'

@@ -46,9 +46,9 @@ router.get('/modulo-tarefas', async (req, res) => {
             const result = await getTarefasFromModule(idUser, idModule!.toString())
             var percProgresso = 0
             if(moduloInformacao.total > 0) {
-                percProgresso = (moduloInformacao.concluido / moduloInformacao.total) * 100
+                percProgresso = ((moduloInformacao.concluido / moduloInformacao.total) * 100)
             }
-            res.status(201).json({message: 'Tarefas encontrado', data: {id_modulo: moduloInformacao.id, nome_modulo: moduloInformacao.nome, perc_completo: percProgresso, tarefas: result}})
+            res.status(201).json({message: 'Tarefas encontrado', data: {id_modulo: moduloInformacao.id, nome_modulo: moduloInformacao.nome, perc_completo: percProgresso.toFixed(2), tarefas: result}})
         } catch (error) {
             console.log(error)
             res.status(500).json({message: `Erro enquanto pegava todas as tarefas: ${error}`})
@@ -84,7 +84,7 @@ router.get('/tarefa', async (req, res) => {
             }
             const respostaTarefa: RespostaDTO[] = await getRespostasFromTarefa(result.id)
             const retornoTarefa: RetornoTarefaDTO = criarTarefaRetorno(result, respostaTarefa)
-            res.status(201).json({message: 'Tarefa encontrado', data: {id_modulo: moduloInformacao.id, nome_modulo: moduloInformacao.nome, perc_completo: percProgresso, tarefa: retornoTarefa}})
+            res.status(201).json({message: 'Tarefa encontrado', data: {id_modulo: moduloInformacao.id, nome_modulo: moduloInformacao.nome, perc_completo: percProgresso.toFixed(2), tarefa: retornoTarefa}})
         } catch (error) {
             console.log(error)
             res.status(500).json({message: `Erro enquanto pegava uma tarefa: ${error}`})
@@ -176,5 +176,16 @@ function verificarTokenRequest(req: Request) {
 }
 
 function criarTarefaRetorno(tarefa: TarefaDTO, respostas: RespostaDTO[]) {
-    return new RetornoTarefaDTO(tarefa.id, tarefa.nome, tarefa.conteudo, tarefa.tipo, respostas)
+    switch(tarefa.tipo) {
+        case 1:
+            var descricao = tarefa.conteudo
+            descricao = replaceAll(descricao as string, "$variavel", "______")
+            return new RetornoTarefaDTO(tarefa.id, tarefa.nome, descricao, tarefa.tipo, respostas)
+        default:
+            return new RetornoTarefaDTO(tarefa.id, tarefa.nome, tarefa.conteudo, tarefa.tipo, respostas)
+    }
+}
+
+function replaceAll(string: string, search: string, replace: string) {
+    return string.split(search).join(replace);
 }
