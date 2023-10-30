@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import RespostaDTO from '../dto/respostaDTO';
-import { getResposta, getRespostas, updateResposta } from '../database/respostaDB'
+import { getResposta, getRespostas, updateResposta, verificaRespostaPertenceTarefa } from '../database/respostaDB'
 import { getTarefa } from '../database/tarefaDB'
 import { salvarTarefaFeita, verificarTarefaFeita } from '../database/tarefaFeitaDB'
 import { getUser, updateUser, updateVidas } from '../database/userDB'
@@ -69,6 +69,11 @@ router.post('/resposta/enviar', express.json(), async (req, res) => {
             const idTarefa = req.query['idTarefa']
             if(idResposta == undefined || idTarefa == undefined) {
                 res.status(403).json({message: 'Informações incompleta'})
+                return
+            }
+            const respostaValida = await verificaRespostaPertenceTarefa(idTarefa.toString(), idResposta.toString())
+            if(respostaValida['existe'] == false) {
+                res.status(403).json({message: 'Código de resposta inválido'})
                 return
             }
             const idUser = verificacao['id']

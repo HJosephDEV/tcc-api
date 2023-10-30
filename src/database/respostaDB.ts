@@ -23,6 +23,13 @@ export async function getResposta(id: String) {
     return result.rows[0]
 }
 
+export async function verificaRespostaPertenceTarefa(idTarefa: string, idResposta: string) {
+    const query = 'select (count(*) > 0) as existe from resposta where id_tarefa = $1 and id = $2'
+    const values = [idTarefa, idResposta]
+    const result = await pool.query(query, values)
+    return result.rows[0]
+}
+
 export async function addResposta(resposta: RespostaDTO, idTarefa: String) {
     const query = 'INSERT INTO resposta (descricao, resposta_correta, id_tarefa) VALUES ($1, $2, $3) RETURNING *'
     const values = [resposta.descricao, resposta.resposta_correta, idTarefa]
