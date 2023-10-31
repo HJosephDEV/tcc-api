@@ -8,6 +8,8 @@ import { verificarToken } from '../middleware/auth';
 import { getModuloProgresso } from '../database/moduloDB';
 import ProgressoModuloDTO from '../dto/progressoModuloDTO';
 import RetornoTarefaDTO from '../dto/retornoTarefaDTO';
+import { addImagem, getImagem } from '../database/imageDB';
+import ImagemDTO from '../dto/imagemDTO';
 
 const router: IRouter = express.Router();
 
@@ -83,7 +85,7 @@ router.get('/tarefa', async (req, res) => {
                 percProgresso = (moduloInformacao.concluido / moduloInformacao.total) * 100
             }
             const respostaTarefa: RespostaDTO[] = await getRespostasFromTarefa(result.id)
-            const retornoTarefa: RetornoTarefaDTO = criarTarefaRetorno(result, respostaTarefa)
+            const retornoTarefa: RetornoTarefaDTO = await criarTarefaRetorno(result, respostaTarefa)
             res.status(201).json({message: 'Tarefa encontrado', data: {id_modulo: moduloInformacao.id, nome_modulo: moduloInformacao.nome, perc_completo: percProgresso.toFixed(2), tarefa: retornoTarefa}})
         } catch (error) {
             console.log(error)
@@ -102,8 +104,15 @@ router.post('/tarefa', async (req, res) => {
             const newTask: TarefaDTO = await addTarefa(novaTarefa);
             var respostas: RespostaDTO[] = []
             for (const resposta of novaTarefa.respostas) {
-                var result: RespostaDTO = await addResposta(resposta, newTask.id)
-                respostas.push(result)
+                if(newTask.tipo == 2) {
+                    var imagemSalva: ImagemDTO = await addImagem(resposta.descricao.toString())
+                    resposta.descricao = imagemSalva.id
+                    var result: RespostaDTO = await addResposta(resposta, newTask.id)
+                    respostas.push(result)
+                } else {
+                    var result: RespostaDTO = await addResposta(resposta, newTask.id)
+                    respostas.push(result)
+                }
             }
             newTask.respostas = respostas
             res.status(201).json({message: 'Tarefa criada com sucesso', data: newTask})
@@ -175,12 +184,19 @@ function verificarTokenRequest(req: Request) {
     }
 }
 
-function criarTarefaRetorno(tarefa: TarefaDTO, respostas: RespostaDTO[]) {
+async function criarTarefaRetorno(tarefa: TarefaDTO, respostas: RespostaDTO[]) {
     switch(tarefa.tipo) {
         case 1:
             var descricao = tarefa.conteudo
             descricao = replaceAll(descricao as string, "$variavel", "______")
             return new RetornoTarefaDTO(tarefa.id, tarefa.nome, descricao, tarefa.tipo, respostas)
+        case 2:
+            for (let index = 0; index < respostas.length; index++) {
+                const element = respostas[index];
+                const imagem: ImagemDTO = await getImagem(element.descricao.toString())
+                element.descricao = imagem.url
+            }
+            return new RetornoTarefaDTO(tarefa.id, tarefa.nome, tarefa.conteudo, tarefa.tipo, respostas)
         default:
             return new RetornoTarefaDTO(tarefa.id, tarefa.nome, tarefa.conteudo, tarefa.tipo, respostas)
     }
