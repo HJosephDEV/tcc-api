@@ -98,7 +98,7 @@ router.post('/resposta/enviar', express.json(), async (req, res) => {
                 if(tarefa.tipo == 1) {
                     var descricao = tarefa.conteudo
                     resposta.descricao.split(',').forEach(it => {
-                        descricao = descricao.replace("$variavel", `<span>${it.trim()}</span>`)
+                        descricao = descricao.replace("$variavel", `<span style="color:#ffe500">${it.trim()}</span>`)
                     })
                     tarefa.conteudo = descricao
                     res.status(201).json({message: 'Resposta Correta', data: {acertou: true, exp: tarefa.tarefa_exp, subiuNivel: upouNivel, resposta: tarefa.conteudo}})
