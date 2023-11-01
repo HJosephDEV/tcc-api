@@ -8,6 +8,7 @@ import { getUser, updateUser, updateVidas } from '../database/userDB'
 import { verificarToken } from '../middleware/auth';
 import UserDTO from '../dto/userDTO';
 import TarefaDTO from '../dto/tarefaDTO';
+import RetornoStatusUserDTO from '../dto/retornoStatusUserDTO';
 
 const router: IRouter = express.Router();
 
@@ -93,7 +94,7 @@ router.post('/resposta/enviar', express.json(), async (req, res) => {
                     res.status(404).json({message: 'Tarefa não encontrada'})
                     return
                 }
-                var upouNivel = await ajustarExp(user, tarefa)
+                var upouNivel: RetornoStatusUserDTO = await ajustarExp(user, tarefa)
                 await salvarConclusaoTarefa(tarefa.id, user.id)
                 if(tarefa.tipo == 1) {
                     var descricao = tarefa.conteudo
@@ -101,10 +102,10 @@ router.post('/resposta/enviar', express.json(), async (req, res) => {
                         descricao = descricao.replace("$variavel", `<span style="color:#ffe500">${it.trim()}</span>`)
                     })
                     tarefa.conteudo = descricao
-                    res.status(201).json({message: 'Resposta Correta', data: {acertou: true, exp: tarefa.tarefa_exp, subiuNivel: upouNivel, resposta: tarefa.conteudo}})
+                    res.status(201).json({message: 'Resposta Correta', data: {acertou: true, exp: tarefa.tarefa_exp, subiuNivel: upouNivel.subiu_nivel, user_level: upouNivel.user_level, resposta: tarefa.conteudo}})
                     return
                 } else {
-                    res.status(201).json({message: 'Resposta Correta', data: {acertou: true, exp: tarefa.tarefa_exp, subiuNivel: upouNivel}})
+                    res.status(201).json({message: 'Resposta Correta', data: {acertou: true, exp: tarefa.tarefa_exp, subiuNivel: upouNivel, user_level: upouNivel.user_level}})
                     return
                 }    
             } else {
@@ -144,7 +145,8 @@ async function ajustarExp(user: UserDTO, tarefa: TarefaDTO) {
         user.user_exp = currentExp
     }
     await updateUser(user.id.toString(), user, false)
-    return upouNivel
+    const retorno = new RetornoStatusUserDTO(user.user_level, upouNivel)
+    return retorno
 }
 
 async function salvarConclusaoTarefa(tarefaId: String, usuarioId: String) {
