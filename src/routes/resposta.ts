@@ -105,7 +105,7 @@ router.post('/resposta/enviar', express.json(), async (req, res) => {
                     res.status(201).json({message: 'Resposta Correta', data: {acertou: true, exp: tarefa.tarefa_exp, subiuNivel: upouNivel.subiu_nivel, user_level: upouNivel.user_level, resposta: tarefa.conteudo}})
                     return
                 } else {
-                    res.status(201).json({message: 'Resposta Correta', data: {acertou: true, exp: tarefa.tarefa_exp, subiuNivel: upouNivel, user_level: upouNivel.user_level}})
+                    res.status(201).json({message: 'Resposta Correta', data: {acertou: true, exp: tarefa.tarefa_exp, subiuNivel: upouNivel.subiu_nivel, user_level: upouNivel.user_level}})
                     return
                 }    
             } else {
