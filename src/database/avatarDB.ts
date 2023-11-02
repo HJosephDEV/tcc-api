@@ -10,7 +10,7 @@ export async function getAvatarsDesbloqueados(id: string) {
 
 export async function getAvatarsGeral() {
     const client = await iniciarConexao()
-    const result = await client.query('SELECT a.*, false as selecionado, (a.level_req = 0) as desbloqueado FROM avatar a order by a.level_req')
+    const result = await client.query('SELECT a.*, false as selecionado, (a.level_req <= 1) as desbloqueado FROM avatar a order by a.level_req')
     fecharConexao(client)
     return result.rows
 }
