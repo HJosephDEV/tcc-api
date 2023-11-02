@@ -47,3 +47,10 @@ export async function deleteModulo(id: String) {
     const result = await pool.query(query, values)
     return result.rowCount > 0
 }
+
+export async function verificarModuloExistente(titulo: String) {
+    const query = 'SELECT (count(id) > 0) AS existe FROM modulo m WHERE m.nome = $1'
+    const values = [titulo]
+    const result = await pool.query(query, values)
+    return result.rows[0]['existe']
+}

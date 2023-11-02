@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import ModuloDTO from '../dto/moduloDTO';
-import { getModulo, getModulos, addModulo, updateModulo, deleteModulo, getModulosIniciados } from '../database/moduloDB'
+import { getModulo, getModulos, addModulo, updateModulo, deleteModulo, getModulosIniciados, verificarModuloExistente } from '../database/moduloDB'
 import { getTarefasConcluidasFromModule } from '../database/tarefaDB'
 import { salvarModuloFeito, verificarModuloFeito } from '../database/moduloFeitoDB'
 import { verificarToken } from '../middleware/auth';
@@ -70,6 +70,11 @@ router.post('/modulo', async (req, res) => {
     if (verificacao) {
         try{
             const novoModulo: ModuloDTO = req.body
+            const existe = await verificarModuloExistente(novoModulo.nome)
+            if(existe) {
+                res.status(403).json({message: 'Modulo já existente'})
+                return
+            }
             const moduloAdicionado = await addModulo(novoModulo);
             res.status(201).json({message: 'Modulo criado com sucesso', data: moduloAdicionado})
         } catch(error) {
