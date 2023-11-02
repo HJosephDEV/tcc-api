@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import UserDTO from '../dto/userDTO';
-import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail, updateVidas, updateUserDados, updateUserAvatar, updateUserSenha, getUsersByLevelAndExp, getUsersLessThenThreeLives } from '../database/userDB'
+import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail, updateVidas, updateUserDados, updateUserAvatar, updateUserSenha, getUsersByLevelAndExp, getUsersLessThenThreeLives, verificarLogin, verificarEmail } from '../database/userDB'
 import { gerarToken, verificarToken } from '../middleware/auth';
 import RetornoUserDTO from '../dto/retornoUserDTO';
 import { getAvatar } from '../database/avatarDB';
@@ -73,6 +73,32 @@ router.get('/usuario/ranking', async (req, res) => {
         }
     } else {
         res.status(401).json({ message: 'Token inválido' })
+    }
+});
+
+router.get('/verificar-dados', async (req, res) => {
+    try {
+        const dadosUsuario: UserDTO = req.body
+        var existeLogin = false
+        var existeEmail = false
+        if(dadosUsuario.login != null && dadosUsuario.login.length > 0) {
+            existeLogin = await verificarLogin(dadosUsuario.login.toString())
+        }
+        if(dadosUsuario.email != null && dadosUsuario.email.length > 0) {
+            existeEmail = await verificarEmail(dadosUsuario.email.toString())
+        }
+        if(existeLogin && existeEmail) {
+            res.status(200).json({login: 'Login já cadastrado no sistema', email: 'Email já cadastrado no sistema'})
+        } else if(existeEmail) {
+            res.status(200).json({login: "", email: 'Email já cadastrado no sistema'})
+        } else if(existeLogin) {
+            res.status(200).json({login: 'Login já cadastrado no sistema', email: ""})
+        } else {
+            res.status(201).json({})
+        }
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({message: `Erro enquanto verificava os dados de cadastro: ${error}`})
     }
 });
 

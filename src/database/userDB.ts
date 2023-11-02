@@ -13,6 +13,18 @@ export async function getUser(id: string) {
     return result.rows[0]
 }
 
+export async function verificarLogin(login: string) {
+    const query = 'SELECT (count(*) > 0) AS existe FROM usuario u WHERE u.login = $1'
+    const result = await pool.query(query, [login])
+    return result.rows[0]['existe']
+}
+
+export async function verificarEmail(email: string) {
+    const query = 'SELECT (count(*) > 0) AS existe FROM usuario u WHERE u.email = $1'
+    const result = await pool.query(query, [email])
+    return result.rows[0]['existe']
+}
+
 export async function getUsersByLevelAndExp() {
     const query = 'SELECT u.id as id_usuario, u.nome, u.user_level, u.user_exp FROM USUARIO u ORDER BY u.user_level DESC, u.user_exp DESC LIMIT 100'
     const result = await pool.query(query)
