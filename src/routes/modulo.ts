@@ -72,7 +72,7 @@ router.post('/modulo', async (req, res) => {
             const novoModulo: ModuloDTO = req.body
             const existe = await verificarModuloExistente(novoModulo.nome)
             if(existe) {
-                res.status(403).json({message: 'Modulo já existente'})
+                res.status(403).json({message: 'Já possui um módulo com este nome!'})
                 return
             }
             const moduloAdicionado = await addModulo(novoModulo);
