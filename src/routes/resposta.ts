@@ -139,7 +139,7 @@ async function ajustarExp(user: UserDTO, tarefa: TarefaDTO) {
     if(currentExp >= user.user_next_level_exp) {
         user.user_exp = currentExp - user.user_next_level_exp
         user.user_level += 1
-        user.user_next_level_exp = ((user.user_next_level_exp / 2) * user.user_level)
+        user.user_next_level_exp = Math.round((user.user_next_level_exp * 1.5))
         upouNivel = true
     } else {
         user.user_exp = currentExp
