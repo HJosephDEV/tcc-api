@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import { verificarToken } from '../middleware/auth';
-import { createAvatar, getAvatar, getAvatarsGeral, getAvatarsDesbloqueados, deleteAvatar } from '../database/avatarDB';
+import { createAvatar, getAvatar, getAvatarsGeral, getAvatarsDesbloqueados, deleteAvatar, updateAvatar } from '../database/avatarDB';
 import AvatarDTO from '../dto/avatarDTO';
 
 const router: IRouter = express.Router();
@@ -64,6 +64,36 @@ router.post('/avatar', express.json(), async (req, res) => {
     }
 })
 
+router.put('/avatar', express.json(), async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if(verificacao) {
+        try {
+            const dadosNovos: AvatarDTO = req.body
+            if(dadosNovos != undefined){
+                const usuarioAntigo: AvatarDTO = await getAvatar(dadosNovos!.id.toString())
+                if(usuarioAntigo == undefined || usuarioAntigo == null) {
+                    res.status(404).json({message: 'Usuário não encontrado'})
+                    return
+                }
+                const usuarioAtualizado = criarAvatarAtualizado(usuarioAntigo, dadosNovos)
+                const result = await updateAvatar(dadosNovos!.id.toString(), usuarioAtualizado)
+                if(result) {
+                    res.status(201).json({message: 'Avatar Atualizado'})
+                } else {
+                    res.status(404).json({message: 'Avatar não encontrado'})
+                }
+            } else {
+                res.status(403).json({message: 'Informações incorretas'})
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro na atualização de avatar: ${error}`})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
+    }
+})
+
 router.delete('/avatar', express.json(), async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if(verificacao) {
@@ -97,4 +127,12 @@ function verificarTokenRequest(req: Request) {
         console.log(error)
         return
     }
+}
+
+function criarAvatarAtualizado(avatarAntigo: AvatarDTO, avatarNovo: AvatarDTO) {
+    const id = avatarNovo.id ?? avatarAntigo.id
+    const url = avatarNovo.url ?? avatarAntigo.url
+    const level_req = avatarNovo.level_req ?? avatarAntigo.level_req
+
+    return new AvatarDTO(id, url, level_req)
 }
