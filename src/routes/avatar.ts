@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import { verificarToken } from '../middleware/auth';
-import { createAvatar, getAvatar, getAvatarsGeral, getAvatarsDesbloqueados } from '../database/avatarDB';
+import { createAvatar, getAvatar, getAvatarsGeral, getAvatarsDesbloqueados, deleteAvatar } from '../database/avatarDB';
 import AvatarDTO from '../dto/avatarDTO';
 
 const router: IRouter = express.Router();
@@ -61,6 +61,30 @@ router.post('/avatar', express.json(), async (req, res) => {
     } catch(error) {
         console.log(error)
         res.status(500).json({message: `Erro na criação de avatar: ${error}`})
+    }
+})
+
+router.delete('/avatar', express.json(), async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if(verificacao) {
+        try {
+            const id = req.query['id']
+            if(id != undefined){
+                const result = await deleteAvatar(id!.toString())
+                if(result){
+                    res.status(201).json({message: 'Avatar deletado'})
+                }else{
+                    res.status(403).json({message: 'Avatar não encontrado'})
+                }
+            }else {
+                res.status(403).json({message: 'Código do avatar não informado'})
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto deletava o avatar: ${error}`})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
     }
 })
 
