@@ -26,7 +26,7 @@ export async function verificarEmail(email: string) {
 }
 
 export async function getUsersByLevelAndExp() {
-    const query = 'SELECT u.id as id_usuario, u.nome, u.user_level, u.user_exp FROM USUARIO u ORDER BY u.user_level DESC, u.user_exp DESC LIMIT 100'
+    const query = 'SELECT u.id as id_usuario, u.nome, u.user_level, u.user_exp FROM USUARIO u where u.is_admin = false ORDER BY u.user_level DESC, u.user_exp DESC LIMIT 100'
     const result = await pool.query(query)
     return result.rows
 }
