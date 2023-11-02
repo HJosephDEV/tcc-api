@@ -76,7 +76,7 @@ router.get('/usuario/ranking', async (req, res) => {
     }
 });
 
-router.get('/verificar-dados', async (req, res) => {
+router.post('/verificar-dados', async (req, res) => {
     try {
         const dadosUsuario: UserDTO = req.body
         var existeLogin = false
