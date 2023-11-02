@@ -41,7 +41,7 @@ export async function createUser(user: UserDTO) {
     const query = 'INSERT INTO usuario (nome, sobrenome, login, email, senha, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)'+
     'RETURNING id, nome, sobrenome, login, email, user_level, user_exp, user_next_level_exp, bloqueado, vidas, id_avatar, is_admin'
     const hash = await bcrypt.hash(user.senha.toString(), 10);
-    const values = [user.nome, user.sobrenome, user.login, user.email, hash, user.user_level ?? 1, user.user_exp ?? 0, user.user_next_level_exp ?? 100, user.bloqueado ?? false, user.vidas ?? 3, user.id_avatar, user.is_admin ?? false]
+    const values = [user.nome, user.sobrenome, user.login.toLowerCase(), user.email.toLowerCase(), hash, user.user_level ?? 1, user.user_exp ?? 0, user.user_next_level_exp ?? 100, user.bloqueado ?? false, user.vidas ?? 3, user.id_avatar, user.is_admin ?? false]
     const result = await pool.query(query, values)
     return result.rows[0]
 }

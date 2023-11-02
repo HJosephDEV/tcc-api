@@ -1,4 +1,4 @@
-import express, { Request } from 'express';
+import express, { Request, Response } from 'express';
 import { IRouter } from 'express';
 import UserDTO from '../dto/userDTO';
 import { createUser, getUsers, getUser, updateUser, deleteUser, getLogin, blockUser, unblockUser, getLoginEmail, updateVidas, updateUserDados, updateUserAvatar, updateUserSenha, getUsersByLevelAndExp, getUsersLessThenThreeLives, verificarLogin, verificarEmail } from '../database/userDB'
@@ -6,7 +6,7 @@ import { gerarToken, verificarToken } from '../middleware/auth';
 import RetornoUserDTO from '../dto/retornoUserDTO';
 import { getAvatar } from '../database/avatarDB';
 import AvatarDTO from '../dto/avatarDTO';
-import bcrypt, { hash } from 'bcrypt';
+import bcrypt from 'bcrypt';
 import RankingDTO from '../dto/rankingDTO';
 import { createUserRanking, deleteAllUsersRanking, getUsersRanking } from '../database/rankingDB';
 
@@ -82,10 +82,10 @@ router.post('/verificar-dados', async (req, res) => {
         var existeLogin = false
         var existeEmail = false
         if(dadosUsuario.login != null && dadosUsuario.login.length > 0) {
-            existeLogin = await verificarLogin(dadosUsuario.login.toString())
+            existeLogin = await verificarLogin(dadosUsuario.login.toString().toLowerCase())
         }
         if(dadosUsuario.email != null && dadosUsuario.email.length > 0) {
-            existeEmail = await verificarEmail(dadosUsuario.email.toString())
+            existeEmail = await verificarEmail(dadosUsuario.email.toString().toLowerCase())
         }
         if(existeLogin && existeEmail) {
             res.status(200).json({login: 'Login já cadastrado no sistema', email: 'Email já cadastrado no sistema'})
@@ -121,6 +121,10 @@ router.put('/usuario', express.json(), async (req, res) => {
         try {
             const dadosNovos: UserDTO = req.body
             if(dadosNovos != undefined){
+                const existeDados = await verificarExistenciaDados(dadosNovos.id.toString(), dadosNovos, res)
+                if(existeDados) {
+                    return
+                }
                 const usuarioAntigo: UserDTO = await getUser(dadosNovos!.id.toString())
                 if(usuarioAntigo == undefined || usuarioAntigo == null) {
                     res.status(404).json({message: 'Usuário não encontrado'})
@@ -152,6 +156,10 @@ router.put('/usuario/trocar-dados', express.json(), async (req, res) => {
             const id = verificacao['id']
             const dadosNovos: UserDTO = req.body
             if(dadosNovos != undefined) {
+                const existeDados = await verificarExistenciaDados(id, dadosNovos, res)
+                if(existeDados) {
+                    return
+                }
                 const usuarioAntigo: UserDTO = await getUser(id)
                 if(usuarioAntigo == undefined || usuarioAntigo == null) {
                     res.status(404).json({message: 'Usuário não encontrado'})
@@ -268,9 +276,9 @@ router.post('/usuario/login', express.json(), async (req, res) => {
         const login = dados['login'].toString() as String
         var result: UserDTO
         if(login.includes("@") == true) {
-            result = await getLoginEmail(dados['login']!.toString())
+            result = await getLoginEmail(dados['login']!.toString().toLowerCase())
         } else {
-            result = await getLogin(dados['login']!.toString())
+            result = await getLogin(dados['login']!.toString().toLowerCase())
         }
         if(result == undefined) {
             res.status(403).json({message: 'Informações incorretas'})
@@ -353,7 +361,7 @@ router.put('/usuario/restaurar-vida', express.json(), async (req, res) => {
                     return
                 }
                 let vidas = user.vidas + 1
-                const result = await updateVidas(id!.toString(), vidas)
+                await updateVidas(id!.toString(), vidas)
                 res.status(201).json({message: 'Vida restaurada'})
             } else {
                 res.status(403).json({message: 'Código de usuário não informado'})
@@ -375,8 +383,8 @@ function criarUsuarioAtualizado(userAntigo: UserDTO, userNovo: UserDTO) {
     const id = userNovo.id ?? userAntigo.id
     const nome = userNovo.nome ?? userAntigo.nome
     const sobrenome = userNovo.sobrenome ?? userAntigo.sobrenome
-    const login = userNovo.login ?? userAntigo.login
-    const email = userNovo.email ?? userAntigo.email
+    const login = userNovo.login?.toLocaleLowerCase() ?? userAntigo.login.toLocaleLowerCase()
+    const email = userNovo.email?.toLocaleLowerCase() ?? userAntigo.email.toLocaleLowerCase()
     const senha = userNovo.senha ?? userAntigo.senha
     const user_level = userNovo.user_level ?? userAntigo.user_level
     const user_exp = userNovo.user_exp ?? userAntigo.user_exp
@@ -398,6 +406,31 @@ function verificarTokenRequest(req: Request) {
         console.log(error)
         return
     }
+}
+
+async function verificarExistenciaDados(idUser: string, dados: UserDTO, res: Response) {
+    var existeLogin = false
+    var existeEmail = false
+    const user = await getUser(idUser)
+
+    if(dados.login != null && dados.login.length > 0 && dados.login.toLocaleLowerCase() != user.login.toLocaleLowerCase()) {
+        existeLogin = await verificarLogin(dados.login.toString().toLowerCase())
+    }
+    if(dados.email != null && dados.email.length > 0 && dados.email.toLocaleLowerCase() != user.email.toLocaleLowerCase()) {
+        existeEmail = await verificarEmail(dados.email.toString().toLowerCase())
+    }
+    if(existeLogin && existeEmail) {
+        res.status(200).json({login: 'Login já cadastrado no sistema', email: 'Email já cadastrado no sistema'})
+        return true
+    } else if(existeEmail) {
+        res.status(200).json({login: "", email: 'Email já cadastrado no sistema'})
+        return true
+    } else if(existeLogin) {
+        res.status(200).json({login: 'Login já cadastrado no sistema', email: ""})
+        return true
+    } 
+
+    return false
 }
 
 async function updateRanking () {
