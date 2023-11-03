@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import TarefaDTO from '../dto/tarefaDTO';
-import { getTarefas, getTarefa, addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule, getTarefasConcluidasFromModule, getTarefaInformacaoGeral, getTarefasFiltrado } from '../database/tarefaDB'
+import { addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule, getTarefaInformacaoGeral, getTarefasFiltrado } from '../database/tarefaDB'
 import { addResposta, getRespostas, getRespostasFromTarefa } from '../database/respostaDB'
 import RespostaDTO from '../dto/respostaDTO';
 import { verificarToken } from '../middleware/auth';
