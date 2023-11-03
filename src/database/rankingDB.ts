@@ -30,10 +30,12 @@ export async function getUserRanking(id: string) {
 export async function createUserRanking(user: RankingDTO) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'INSERT INTO ranking (id_usuario, nome, user_level, user_exp) VALUES ($1, $2, $3, $4)'+
         'RETURNING *'
         const values = [user.id_usuario, user.nome, user.user_level, user.user_exp]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rows[0]
     } catch (error) {
@@ -45,9 +47,11 @@ export async function createUserRanking(user: RankingDTO) {
 export async function updateUserRanking(id: string, user: RankingDTO) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'UPDATE ranking SET nome = $1, user_level = $2, user_exp = $3 WHERE id_usuario = $4'
         const values = [user.nome, user.user_level, user.user_exp, id]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rowCount > 0
     } catch (error) {
@@ -59,9 +63,11 @@ export async function updateUserRanking(id: string, user: RankingDTO) {
 export async function deleteUserRanking(id: string) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'DELETE FROM ranking WHERE id = $1'
         const values = [id]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rowCount > 0
     } catch (error) {
@@ -73,8 +79,10 @@ export async function deleteUserRanking(id: string) {
 export async function deleteAllUsersRanking() {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'TRUNCATE ranking'
-        const result = await pool.query(query)
+        const result = await client.query(query)
+        client.release()
         fecharConexao(pool)
         return result.rowCount == 0
     } catch (error) {

@@ -17,9 +17,11 @@ export async function verificarTarefaFeita(idTarefa: String, idUsuario: String) 
 export async function salvarTarefaFeita(idTarefa: String, idUsuario: String) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'INSERT INTO tarefa_feita (id_tarefa, id_usuario) VALUES ($1, $2) RETURNING *'
         const values = [idTarefa, idUsuario]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rows[0]
     } catch (error) {

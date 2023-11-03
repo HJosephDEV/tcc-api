@@ -58,9 +58,11 @@ export async function getModuloProgresso(idUser: String, idModule: String) {
 export async function addModulo(modulo: ModuloDTO) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'INSERT INTO modulo (nome, descricao) VALUES ($1, $2) RETURNING *'
         const values = [modulo.nome, modulo.descricao]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rows[0]
     } catch (error) {
@@ -72,9 +74,11 @@ export async function addModulo(modulo: ModuloDTO) {
 export async function updateModulo(id: String, updatedModulo: ModuloDTO) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'UPDATE modulo SET nome = $1, descricao = $2 WHERE id = $3'
         const values = [updatedModulo.nome, updatedModulo.descricao, id]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rowCount > 0
     } catch (error) {
@@ -86,9 +90,11 @@ export async function updateModulo(id: String, updatedModulo: ModuloDTO) {
 export async function deleteModulo(id: String) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'DELETE FROM modulo WHERE id = $1'
         const values = [id]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rowCount > 0
     } catch (error) {

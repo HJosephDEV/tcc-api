@@ -42,9 +42,11 @@ export async function getAvatar(id: string) {
 export async function createAvatar(avatar: AvatarDTO) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'INSERT INTO avatar (url, level_req) VALUES ($1, $2) RETURNING *'
         const values = [avatar.url, avatar.level_req]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rows[0]
     } catch (error) {
@@ -56,9 +58,11 @@ export async function createAvatar(avatar: AvatarDTO) {
 export async function updateAvatar(id: string, avatar: AvatarDTO) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'UPDATE avatar SET url = $1, level_req = $2 WHERE id = $3'
         const values = [avatar.url, avatar.level_req, id]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rowCount > 0
     } catch (error) {
@@ -70,9 +74,11 @@ export async function updateAvatar(id: string, avatar: AvatarDTO) {
 export async function deleteAvatar(id: string) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'DELETE FROM avatar WHERE id = $1'
         const values = [id]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rowCount > 0
     } catch (error) {

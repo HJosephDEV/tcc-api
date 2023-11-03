@@ -70,9 +70,11 @@ export async function getTarefaInformacaoGeral(id: String) {
 export async function addTarefa(tarefa: TarefaDTO) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'INSERT INTO tarefa (nome, conteudo, tipo, tarefa_exp, id_modulo) VALUES ($1, $2, $3, $4, $5) RETURNING *'
         const values = [tarefa.nome, tarefa.conteudo, tarefa.tipo, tarefa.tarefa_exp, tarefa.id_modulo]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rows[0]
     } catch (error) {
@@ -84,9 +86,11 @@ export async function addTarefa(tarefa: TarefaDTO) {
 export async function updateTarefa(id: String, updatedTarefa: TarefaDTO) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'UPDATE tarefa SET nome = $1, conteudo = $2, tipo = $3, tarefa_exp = $4, id_modulo = $5 WHERE id = $6'
         const values = [updatedTarefa.nome, updatedTarefa.conteudo, updatedTarefa.tipo, updatedTarefa.tarefa_exp, updatedTarefa.id_modulo, id]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rowCount > 0
     } catch (error) {
@@ -98,9 +102,11 @@ export async function updateTarefa(id: String, updatedTarefa: TarefaDTO) {
 export async function deleteTarefa(id: String) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'DELETE FROM tarefa WHERE id = $1'
         const values = [id]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rowCount > 0
     } catch (error) {

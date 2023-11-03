@@ -3,9 +3,11 @@ import { fecharConexao, iniciarConexao } from './index';
 export async function addImagem(url: string) {
     const pool = await iniciarConexao()
     try {
+        const client = await pool.connect()
         const query = 'INSERT INTO imagem (url) VALUES ($1) RETURNING *'
         const values = [url]
-        const result = await pool.query(query, values)
+        const result = await client.query(query, values)
+        client.release()
         fecharConexao(pool)
         return result.rows[0]
     } catch (error) {
