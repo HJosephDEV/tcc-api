@@ -10,7 +10,7 @@ export async function getUsersRanking() {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
-        return []
+        throw error
     }
 }
 
@@ -24,6 +24,7 @@ export async function getUserRanking(id: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     } 
 }
 
@@ -47,6 +48,7 @@ export async function createUserRanking(users: RankingDTO[]) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -63,6 +65,7 @@ export async function updateUserRanking(id: string, user: RankingDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -79,6 +82,7 @@ export async function deleteUserRanking(id: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 

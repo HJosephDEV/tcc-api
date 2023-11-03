@@ -10,6 +10,7 @@ export async function getCursos() {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -23,6 +24,7 @@ export async function getCurso(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -39,6 +41,7 @@ export async function addCurso(curso: CursoDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -55,6 +58,7 @@ export async function updateCurso(id: String, updatedCurso: CursoDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -71,6 +75,7 @@ export async function deleteCurso(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -85,6 +90,7 @@ export async function checkUsuarioCursoExists(idUser: String, idCourse: String) 
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -99,6 +105,7 @@ export async function checkCursoInscrito(idUser: String, idCourse: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -115,5 +122,6 @@ export async function addInscricaoCurso(idUser: String, idCourse: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }

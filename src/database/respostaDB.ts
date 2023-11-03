@@ -12,6 +12,7 @@ export async function getRespostas(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -26,7 +27,7 @@ export async function getRespostasFromTarefa(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
-        return []
+        throw error
     } 
 }
 
@@ -41,6 +42,7 @@ export async function getResposta(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     } 
 }
 
@@ -55,6 +57,7 @@ export async function verificaRespostaPertenceTarefa(idTarefa: string, idRespost
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -71,6 +74,7 @@ export async function addResposta(resposta: RespostaDTO, idTarefa: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -87,6 +91,7 @@ export async function updateResposta(id: String, updatedResposta: RespostaDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -103,5 +108,6 @@ export async function deleteResposta(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }

@@ -11,6 +11,7 @@ export async function getAvatarsDesbloqueados(id: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -23,6 +24,7 @@ export async function getAvatarsGeral() {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -35,7 +37,8 @@ export async function getAvatar(id: string) {
         return result.rows[0]
     } catch (error) {
         console.log(error)
-        fecharConexao(pool)   
+        fecharConexao(pool)
+        throw error   
     }
 }
 
@@ -51,7 +54,8 @@ export async function createAvatar(avatar: AvatarDTO) {
         return result.rows[0]
     } catch (error) {
         console.log(error)
-        fecharConexao(pool)   
+        fecharConexao(pool)
+        throw error   
     }
 }
 
@@ -67,7 +71,8 @@ export async function updateAvatar(id: string, avatar: AvatarDTO) {
         return result.rowCount > 0
     } catch (error) {
         console.log(error)
-        fecharConexao(pool)   
+        fecharConexao(pool)
+        throw error   
     }
 }
 
@@ -84,5 +89,6 @@ export async function deleteAvatar(id: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
