@@ -33,7 +33,7 @@ export async function getAvatar(id: string) {
         const result = await client.query(query, [id])
         fecharConexao(client)
         return result.rows[0]
-    } catch(error) {
+    } catch (error) {
         console.log(error)
         fecharConexao(client)   
     }
@@ -41,20 +41,30 @@ export async function getAvatar(id: string) {
 
 export async function createAvatar(avatar: AvatarDTO) {
     const client = await iniciarConexao()
-    const query = 'INSERT INTO avatar (url, level_req) VALUES ($1, $2) RETURNING *'
-    const values = [avatar.url, avatar.level_req]
-    const result = await client.query(query, values)
-    fecharConexao(client)
-    return result.rows[0]
+    try {
+        const query = 'INSERT INTO avatar (url, level_req) VALUES ($1, $2) RETURNING *'
+        const values = [avatar.url, avatar.level_req]
+        const result = await client.query(query, values)
+        fecharConexao(client)
+        return result.rows[0]
+    } catch (error) {
+        console.log(error)
+        fecharConexao(client)   
+    }
 }
 
 export async function updateAvatar(id: string, avatar: AvatarDTO) {
     const client = await iniciarConexao()
-    const query = 'UPDATE avatar SET url = $1, level_req = $2 WHERE id = $3'
-    const values = [avatar.url, avatar.level_req, id]
-    const result = await client.query(query, values)
-    fecharConexao(client)
-    return result.rowCount > 0
+    try {
+        const query = 'UPDATE avatar SET url = $1, level_req = $2 WHERE id = $3'
+        const values = [avatar.url, avatar.level_req, id]
+        const result = await client.query(query, values)
+        fecharConexao(client)
+        return result.rowCount > 0
+    } catch (error) {
+        console.log(error)
+        fecharConexao(client)   
+    }
 }
 
 export async function deleteAvatar(id: string) {
