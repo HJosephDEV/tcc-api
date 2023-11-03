@@ -3,25 +3,40 @@ import { fecharConexao, iniciarConexao } from './index';
 
 export async function getAvatarsDesbloqueados(id: string) {
     const client = await iniciarConexao()
-    const query = 'select a.*, ((SELECT COUNT(*) FROM usuario u WHERE a.id = u.id_avatar and u.id = $1) = 1) as selecionado, ((SELECT COUNT(*) FROM usuario u WHERE u.id = $1 and a.level_req <= u.user_level) = 1) as desbloqueado from avatar a order by a.level_req'
-    const result = await client.query(query, [id])
-    fecharConexao(client)
-    return result.rows
+    try {
+        const query = 'select a.*, ((SELECT COUNT(*) FROM usuario u WHERE a.id = u.id_avatar and u.id = $1) = 1) as selecionado, ((SELECT COUNT(*) FROM usuario u WHERE u.id = $1 and a.level_req <= u.user_level) = 1) as desbloqueado from avatar a order by a.level_req'
+        const result = await client.query(query, [id])
+        fecharConexao(client)
+        return result.rows
+    } catch (error) {
+        console.log(error)
+        fecharConexao(client)
+    }
 }
 
 export async function getAvatarsGeral() {
     const client = await iniciarConexao()
-    const result = await client.query('SELECT a.*, false as selecionado, (a.level_req <= 1) as desbloqueado FROM avatar a order by a.level_req')
-    fecharConexao(client)
-    return result.rows
+    try {
+        const result = await client.query('SELECT a.*, false as selecionado, (a.level_req <= 1) as desbloqueado FROM avatar a order by a.level_req')
+        fecharConexao(client)
+        return result.rows
+    } catch (error) {
+        console.log(error)
+        fecharConexao(client)
+    }
 }
 
 export async function getAvatar(id: string) {
     const client = await iniciarConexao()
-    const query = 'SELECT * FROM avatar WHERE id = $1'
-    const result = await client.query(query, [id])
-    fecharConexao(client)
-    return result.rows[0]
+    try {
+        const query = 'SELECT * FROM avatar WHERE id = $1'
+        const result = await client.query(query, [id])
+        fecharConexao(client)
+        return result.rows[0]
+    } catch(error) {
+        console.log(error)
+        fecharConexao(client)   
+    }
 }
 
 export async function createAvatar(avatar: AvatarDTO) {
@@ -44,9 +59,14 @@ export async function updateAvatar(id: string, avatar: AvatarDTO) {
 
 export async function deleteAvatar(id: string) {
     const client = await iniciarConexao()
-    const query = 'DELETE FROM avatar WHERE id = $1'
-    const values = [id]
-    const result = await client.query(query, values)
-    fecharConexao(client)
-    return result.rowCount > 0
+    try {
+        const query = 'DELETE FROM avatar WHERE id = $1'
+        const values = [id]
+        const result = await client.query(query, values)
+        fecharConexao(client)
+        return result.rowCount > 0
+    } catch (error) {
+        console.log(error)
+        fecharConexao(client)
+    }
 }
