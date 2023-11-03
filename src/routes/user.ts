@@ -383,10 +383,10 @@ router.get('/usuario/verificar-vida', express.json(), async (req, res) => {
             if(id != undefined){
                 var user = await getUser(id)
                 if(user.vidas == 0) {
-                    res.status(403).json({message: 'Sem vidas restantes', bloquear: true})
+                    res.status(200).json({message: 'Sem vidas restantes', bloquear: true})
                     return
                 } else {
-                    res.status(201).json({message: 'Possui vidas restantes', bloquear: false})
+                    res.status(200).json({message: 'Possui vidas restantes', bloquear: false})
                 }
             } else {
                 res.status(403).json({message: 'Código de usuário não informado'})
