@@ -14,6 +14,19 @@ export async function getTarefas() {
     }
 }
 
+export async function getTarefasFiltrado(idModule: String) {
+    const pool = await iniciarConexao()
+    try {
+        const result = await pool.query('SELECT * FROM tarefa where id_modulo = $1', [idModule]);
+        fecharConexao(pool)
+        return result.rows
+    } catch (error) {
+        console.log(error)
+        fecharConexao(pool)
+        throw error
+    }
+}
+
 export async function getTarefasFromModule(idUser: String, idModule: String) {
     const pool = await iniciarConexao()
     try {
