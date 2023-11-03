@@ -375,6 +375,31 @@ router.put('/usuario/restaurar-vida', express.json(), async (req, res) => {
     }
 })
 
+router.get('/usuario/verificar-vida', express.json(), async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if(verificacao) { 
+        try {
+            const id = verificacao['id']
+            if(id != undefined){
+                var user = await getUser(id)
+                if(user.vidas == 0) {
+                    res.status(403).json({message: 'Sem vidas restantes', bloquear: true})
+                    return
+                } else {
+                    res.status(201).json({message: 'Possui vidas restantes', bloquear: false})
+                }
+            } else {
+                res.status(403).json({message: 'Código de usuário não informado'})
+            }
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto verificava as vidas do usuário: ${error}`})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
+    }
+})
+
 function criarUsuarioRetorno(user: UserDTO) {
     return new RetornoUserDTO(user.nome, user.sobrenome, user.login, user.email, user.user_level, user.user_exp, user.user_next_level_exp, user.bloqueado, user.vidas, user.id_avatar, user.is_admin)
 }
