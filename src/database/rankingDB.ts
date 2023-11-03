@@ -31,13 +31,12 @@ export async function createUserRanking(user: RankingDTO) {
     const pool = await iniciarConexao()
     try {
         const client = await pool.connect()
-        const query = 'INSERT INTO ranking (id_usuario, nome, user_level, user_exp) VALUES ($1, $2, $3, $4)'+
-        'RETURNING *'
+        const query = 'INSERT INTO ranking (id_usuario, nome, user_level, user_exp) VALUES ($1, $2, $3, $4)'
         const values = [user.id_usuario, user.nome, user.user_level, user.user_exp]
         const result = await client.query(query, values)
         client.release()
         fecharConexao(pool)
-        return result.rows[0]
+        return result.rows
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
