@@ -13,6 +13,7 @@ export async function addImagem(url: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -27,5 +28,6 @@ export async function getImagem(id: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }

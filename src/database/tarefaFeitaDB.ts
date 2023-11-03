@@ -11,6 +11,7 @@ export async function verificarTarefaFeita(idTarefa: String, idUsuario: String) 
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -27,5 +28,6 @@ export async function salvarTarefaFeita(idTarefa: String, idUsuario: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }

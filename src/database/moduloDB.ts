@@ -10,6 +10,7 @@ export async function getModulos() {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -24,6 +25,7 @@ export async function getModulosIniciados(idUsuario: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -37,6 +39,7 @@ export async function getModulo(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -51,6 +54,7 @@ export async function getModuloProgresso(idUser: String, idModule: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -68,6 +72,7 @@ export async function addModulo(modulo: ModuloDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -84,6 +89,7 @@ export async function updateModulo(id: String, updatedModulo: ModuloDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -100,6 +106,7 @@ export async function deleteModulo(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -114,5 +121,6 @@ export async function verificarModuloExistente(titulo: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }

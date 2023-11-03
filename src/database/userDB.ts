@@ -11,6 +11,7 @@ export async function getUsers() {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -24,6 +25,7 @@ export async function getUser(id: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -37,6 +39,7 @@ export async function verificarLogin(login: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -50,6 +53,7 @@ export async function verificarEmail(email: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -63,7 +67,7 @@ export async function getUsersByLevelAndExp() {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
-        return []
+        throw error
     }
 }
 
@@ -77,7 +81,7 @@ export async function getUsersLessThenThreeLives() {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
-        return []
+        throw error
     }
 }
 
@@ -96,6 +100,7 @@ export async function createUser(user: UserDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -118,6 +123,7 @@ export async function updateUser(id: string, usuarioAtualizado: UserDTO, changeP
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -134,6 +140,7 @@ export async function updateUserDados(id: string, usuarioAtualizado: UserDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -150,6 +157,7 @@ export async function updateUserAvatar(id: string, usuarioAtualizado: UserDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -167,6 +175,7 @@ export async function updateUserSenha(id: string, usuarioAtualizado: UserDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -183,6 +192,7 @@ export async function deleteUser(id: string) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -196,6 +206,7 @@ export async function getLoginEmail(email: string){
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -209,6 +220,7 @@ export async function getLogin(login: string){
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -225,6 +237,7 @@ export async function blockUser(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -241,6 +254,7 @@ export async function unblockUser(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -257,5 +271,6 @@ export async function updateVidas(id: string, vidas: number) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }

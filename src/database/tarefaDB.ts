@@ -10,6 +10,7 @@ export async function getTarefas() {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -24,6 +25,7 @@ export async function getTarefasFromModule(idUser: String, idModule: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -38,6 +40,7 @@ export async function getTarefasConcluidasFromModule(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -51,6 +54,7 @@ export async function getTarefa(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -64,6 +68,7 @@ export async function getTarefaInformacaoGeral(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -80,6 +85,7 @@ export async function addTarefa(tarefa: TarefaDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -96,6 +102,7 @@ export async function updateTarefa(id: String, updatedTarefa: TarefaDTO) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
 
@@ -112,5 +119,6 @@ export async function deleteTarefa(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(pool)
+        throw error
     }
 }
