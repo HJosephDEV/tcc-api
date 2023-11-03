@@ -85,6 +85,10 @@ router.get('/tarefa', async (req, res) => {
                 percProgresso = (moduloInformacao.concluido / moduloInformacao.total) * 100
             }
             const respostaTarefa: RespostaDTO[] = await getRespostasFromTarefa(result.id)
+            if(respostaTarefa.length == 0) {
+                res.status(500).json({message: `Erro enquanto buscavas as respostas da tarefa`})
+                return
+            }
             const retornoTarefa: RetornoTarefaDTO = await criarTarefaRetorno(result, respostaTarefa)
             res.status(201).json({message: 'Tarefa encontrado', data: {id_modulo: moduloInformacao.id, nome_modulo: moduloInformacao.nome, perc_completo: percProgresso.toFixed(2), tarefa: retornoTarefa}})
         } catch (error) {

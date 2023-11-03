@@ -10,6 +10,7 @@ export async function getUsersRanking() {
     } catch (error) {
         console.log(error)
         fecharConexao(client)
+        return []
     }
 }
 

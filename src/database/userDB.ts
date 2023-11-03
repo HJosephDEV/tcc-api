@@ -63,6 +63,7 @@ export async function getUsersByLevelAndExp() {
     } catch (error) {
         console.log(error)
         fecharConexao(client)
+        return []
     }
 }
 
@@ -76,6 +77,7 @@ export async function getUsersLessThenThreeLives() {
     } catch (error) {
         console.log(error)
         fecharConexao(client)
+        return []
     }
 }
 

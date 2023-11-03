@@ -26,6 +26,7 @@ export async function getRespostasFromTarefa(id: String) {
     } catch (error) {
         console.log(error)
         fecharConexao(client)
+        return []
     } 
 }
 
