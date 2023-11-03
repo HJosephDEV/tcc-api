@@ -80,7 +80,7 @@ router.post('/resposta/enviar', express.json(), async (req, res) => {
             const idUser = verificacao['id']
             const user: UserDTO = await getUser(idUser)
             if(user.vidas <= 0) {
-                res.status(403).json({message: 'Sem vidas restantes'})
+                res.status(403).json({message: 'Sem vidas restantes!'})
                 return
             }
             var resposta: RespostaDTO = await getResposta(idResposta!.toString())
