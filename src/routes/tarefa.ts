@@ -1,8 +1,8 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import TarefaDTO from '../dto/tarefaDTO';
-import { getTarefas, getTarefa, addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule, getTarefasConcluidasFromModule, getTarefaInformacaoGeral } from '../database/tarefaDB'
-import { addResposta, getRespostasFromTarefa } from '../database/respostaDB'
+import { addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule, getTarefaInformacaoGeral, getTarefasFiltrado } from '../database/tarefaDB'
+import { addResposta, getRespostas, getRespostasFromTarefa } from '../database/respostaDB'
 import RespostaDTO from '../dto/respostaDTO';
 import { verificarToken } from '../middleware/auth';
 import { getModuloProgresso } from '../database/moduloDB';
@@ -19,8 +19,28 @@ router.get('/tarefas', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
         try {
-            const result = await getTarefas()
-            res.status(201).json({message: 'Tarefas encontrado', data: result})
+            const idModulo = req.query['id_modulo']
+            if(idModulo == null || idModulo == undefined) {
+                res.status(403).json({message: 'Id do modulo não informado!'})
+                return
+            }
+            const tarefas: TarefaDTO[] = await getTarefasFiltrado(idModulo.toString())
+            if(tarefas == null || tarefas == undefined) {
+                res.status(403).json({message: 'Ocorreu um erro na busca de tarefas'})
+                return
+            }
+            if(tarefas.length > 0) {
+                for (let index = 0; index < tarefas.length; index++) {
+                    var element = tarefas[index];
+                    const respostaTarefa: RespostaDTO[] = await getRespostas(element.id.toString())
+                    if(respostaTarefa == null || respostaTarefa == undefined) {
+                        res.status(500).json({message: `Erro enquanto buscava as respostas da tarefa`})
+                        return
+                    }
+                    element.respostas = respostaTarefa
+                }
+            }
+            res.status(201).json({message: 'Tarefas encontrado', data: tarefas})
         } catch (error) {
             console.log(error)
             res.status(500).json({message: `Erro enquanto pegava todas as tarefas: ${error}`})
