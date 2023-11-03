@@ -462,10 +462,7 @@ async function updateRanking () {
     const usuarios: RankingDTO[] = await getUsersByLevelAndExp()
     if(usuarios.length > 0) {
         await deleteAllUsersRanking()
-        for (let index = 0; index < usuarios.length; index++) {
-            const element = usuarios[index];
-            await createUserRanking(element)   
-        }
+        await createUserRanking(usuarios)
     }
     console.log('Ranking updated');
 }
@@ -485,7 +482,7 @@ async function updateLives() {
 export function criarIntervals() {
     //300000 = 5 minutos
     //60000 = 1 minutos
-    const intervalTime = 300000
+    const intervalTime = 60000
     setInterval(updateRanking, intervalTime);
     setInterval(updateLives, intervalTime);
 }

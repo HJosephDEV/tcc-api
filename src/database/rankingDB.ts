@@ -27,13 +27,20 @@ export async function getUserRanking(id: string) {
     } 
 }
 
-export async function createUserRanking(user: RankingDTO) {
+export async function createUserRanking(users: RankingDTO[]) {
     const pool = await iniciarConexao()
     try {
         const client = await pool.connect()
-        const query = 'INSERT INTO ranking (id_usuario, nome, user_level, user_exp) VALUES ($1, $2, $3, $4)'
-        const values = [user.id_usuario, user.nome, user.user_level, user.user_exp]
-        const result = await client.query(query, values)
+        var query = 'INSERT INTO ranking (id_usuario, nome, user_level, user_exp) VALUES '
+        for (let index = 0; index < users.length; index++) {
+            const element = users[index];
+            if((index + 1) == users.length) {
+                query = query + `(${element.id_usuario}, '${element.nome}', ${element.user_level}, ${element.user_exp})`
+            } else {
+                query = query + `(${element.id_usuario}, '${element.nome}', ${element.user_level}, ${element.user_exp}), `
+            }
+        }
+        const result = await client.query(query)
         client.release()
         fecharConexao(pool)
         return result.rows
