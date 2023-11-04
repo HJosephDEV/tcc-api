@@ -125,6 +125,10 @@ router.post('/tarefa', async (req, res) => {
     if (verificacao) {
         const novaTarefa: TarefaDTO = req.body
         try {
+            if(novaTarefa.id_modulo == null || novaTarefa.id_modulo == undefined) {
+                res.status(403).json({message: 'Código do modulo não informado'})
+                return
+            }
             const exp = parseInt(novaTarefa.tarefa_exp.toString())
             const verificacaoExp = verificarExp(exp)
             if(verificacaoExp.length != 0) {
