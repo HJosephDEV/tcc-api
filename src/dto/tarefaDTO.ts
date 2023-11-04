@@ -8,7 +8,8 @@ class TarefaDTO{
         public tipo: number,
         public tarefa_exp: number,
         public id_modulo: String,
-        public respostas: RespostaDTO[]
+        public respostas: RespostaDTO[],
+        public index_resp: number
     ){}
 }
 
