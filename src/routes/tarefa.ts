@@ -125,6 +125,12 @@ router.post('/tarefa', async (req, res) => {
     if (verificacao) {
         const novaTarefa: TarefaDTO = req.body
         try {
+            const exp = parseInt(novaTarefa.tarefa_exp.toString())
+            const verificacaoExp = verificarExp(exp)
+            if(verificacaoExp.length != 0) {
+                res.status(403).json({message: verificacaoExp})
+                return
+            }
             const newTask: TarefaDTO = await addTarefa(novaTarefa);
             var respostas: RespostaDTO[] = []
             for (let index = 0; index < novaTarefa.respostas.length; index++) {
@@ -230,4 +236,16 @@ async function criarTarefaRetorno(tarefa: TarefaDTO, respostas: RespostaDTO[]) {
 
 function replaceAll(string: string, search: string, replace: string) {
     return string.split(search).join(replace);
+}
+
+function verificarExp(exp: number) {
+    if(exp == null || exp == undefined) {
+        return 'Informações incorretas: EXP'    
+    }    
+    
+    if(exp <= 0) {
+        return 'Informações incorretas: EXP deve ser maior que zero'
+    }
+
+    return ""
 }
