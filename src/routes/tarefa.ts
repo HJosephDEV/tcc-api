@@ -2,13 +2,13 @@ import express, { Request } from 'express';
 import { IRouter } from 'express';
 import TarefaDTO from '../dto/tarefaDTO';
 import { addTarefa, deleteTarefa, updateTarefa, getTarefasFromModule, getTarefaInformacaoGeral, getTarefasFiltrado } from '../database/tarefaDB'
-import { addResposta, getRespostas, getRespostasFromTarefa } from '../database/respostaDB'
+import { addResposta, deleteRespostasFromTarefa, getRespostas, getRespostasFromTarefa } from '../database/respostaDB'
 import RespostaDTO from '../dto/respostaDTO';
 import { verificarToken } from '../middleware/auth';
 import { getModuloProgresso } from '../database/moduloDB';
 import ProgressoModuloDTO from '../dto/progressoModuloDTO';
 import RetornoTarefaDTO from '../dto/retornoTarefaDTO';
-import { addImagem, getImagem } from '../database/imageDB';
+import { addImagem, deleteImagem, getImagem } from '../database/imageDB';
 import ImagemDTO from '../dto/imagemDTO';
 
 const router: IRouter = express.Router();
@@ -169,6 +169,35 @@ router.put('/tarefa', async (req, res) => {
             if(tarefaAtualizado == null || tarefaAtualizado == undefined) {
                 res.status(403).json({message: 'Informações incorretas'})
                 return
+            }
+            if(tarefaAtualizado.id_modulo == null || tarefaAtualizado.id_modulo == undefined) {
+                res.status(403).json({message: 'Código do modulo não informado'})
+                return
+            }
+            const exp = parseInt(tarefaAtualizado.tarefa_exp.toString())
+            const verificacaoExp = verificarExp(exp)
+            if(verificacaoExp.length != 0) {
+                res.status(403).json({message: verificacaoExp})
+                return
+            }
+            if(tarefaAtualizado.tipo == 2) {
+                const respostasOriginal = await getRespostasFromTarefa(tarefaAtualizado.id)
+                for (let index = 0; index < respostasOriginal.length; index++) {
+                    const element = respostasOriginal[index];
+                    deleteImagem(element.descricao)
+                }
+            }
+            await deleteRespostasFromTarefa(tarefaAtualizado.id)
+            for (let index = 0; index < tarefaAtualizado.respostas.length; index++) {
+                var resp = tarefaAtualizado.respostas[index];
+                resp.resposta_correta = index == tarefaAtualizado.index_resp
+                if(tarefaAtualizado.tipo == 2) {
+                    var imagemSalva: ImagemDTO = await addImagem(resp.descricao.toString())
+                    resp.descricao = imagemSalva.id
+                    await addResposta(resp, tarefaAtualizado.id)
+                } else {
+                    await addResposta(resp, tarefaAtualizado.id)
+                }              
             }
             const result = await updateTarefa(tarefaAtualizado!.id.toString(), tarefaAtualizado)
             if(result) {

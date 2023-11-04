@@ -111,3 +111,20 @@ export async function deleteResposta(id: String) {
         throw error
     }
 }
+
+export async function deleteRespostasFromTarefa(id: String) {
+    const pool = await iniciarConexao()
+    try {
+        const client = await pool.connect()
+        const query = 'DELETE FROM resposta WHERE id_tarefa = $1'
+        const values = [id]
+        const result = await client.query(query, values)
+        client.release()
+        fecharConexao(pool)
+        return result.rowCount > 0
+    } catch (error) {
+        console.log(error)
+        fecharConexao(pool)
+        throw error
+    }
+}

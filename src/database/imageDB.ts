@@ -31,3 +31,20 @@ export async function getImagem(id: string) {
         throw error
     }
 }
+
+export async function deleteImagem(id: String) {
+    const pool = await iniciarConexao()
+    try {
+        const client = await pool.connect()
+        const query = 'DELETE FROM imagem WHERE id = $1'
+        const values = [id]
+        const result = await client.query(query, values)
+        client.release()
+        fecharConexao(pool)
+        return result.rowCount > 0
+    } catch (error) {
+        console.log(error)
+        fecharConexao(pool)
+        throw error
+    }
+}
