@@ -127,16 +127,18 @@ router.post('/tarefa', async (req, res) => {
         try {
             const newTask: TarefaDTO = await addTarefa(novaTarefa);
             var respostas: RespostaDTO[] = []
-            for (const resposta of novaTarefa.respostas) {
+            for (let index = 0; index < novaTarefa.respostas.length; index++) {
+                var resp = novaTarefa.respostas[index];
+                resp.resposta_correta = index == novaTarefa.index_resp
                 if(newTask.tipo == 2) {
-                    var imagemSalva: ImagemDTO = await addImagem(resposta.descricao.toString())
-                    resposta.descricao = imagemSalva.id
-                    var result: RespostaDTO = await addResposta(resposta, newTask.id)
+                    var imagemSalva: ImagemDTO = await addImagem(resp.descricao.toString())
+                    resp.descricao = imagemSalva.id
+                    var result: RespostaDTO = await addResposta(resp, newTask.id)
                     respostas.push(result)
                 } else {
-                    var result: RespostaDTO = await addResposta(resposta, newTask.id)
+                    var result: RespostaDTO = await addResposta(resp, newTask.id)
                     respostas.push(result)
-                }
+                }              
             }
             newTask.respostas = respostas
             res.status(201).json({message: 'Tarefa criada com sucesso', data: newTask})
