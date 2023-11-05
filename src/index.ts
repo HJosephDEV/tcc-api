@@ -18,8 +18,8 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, (): void => console.log(`Server running on http://localhost:${PORT}`));
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true}));
+app.use(bodyParser.json({limit: '1mb'}));
 app.use(express.static('public'));
 app.use(express.json());
 app.use(cors());
