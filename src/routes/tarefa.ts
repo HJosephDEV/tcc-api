@@ -38,6 +38,13 @@ router.get('/tarefas', async (req, res) => {
                         return
                     }
                     element.respostas = respostaTarefa
+                    if(element.tipo == 2) {
+                        for (let index = 0; index < element.respostas.length; index++) {
+                            const resposta = element.respostas[index];
+                            const imagem: ImagemDTO = await getImagem(resposta.descricao.toString())
+                            resposta.descricao = imagem.url
+                        }
+                    }
                 }
             }
             res.status(201).json({message: 'Tarefas encontrado', data: tarefas})
