@@ -458,16 +458,7 @@ async function verificarExistenciaDados(idUser: string, dados: UserDTO, res: Res
     return false
 }
 
-async function updateRanking () {
-    const usuarios: RankingDTO[] = await getUsersByLevelAndExp()
-    if(usuarios.length > 0) {
-        await deleteAllUsersRanking()
-        await createUserRanking(usuarios)
-    }
-    console.log('Ranking updated');
-}
-
-async function updateLives() {
+async function updateLivesAndRanking () {
     const usuarios: UserDTO[] = await getUsersLessThenThreeLives()
     if(usuarios.length > 0) {
         for (let index = 0; index < usuarios.length; index++) {
@@ -477,12 +468,18 @@ async function updateLives() {
         }
     }
     console.log('User lives updated');
+    
+    const usuariosRanking: RankingDTO[] = await getUsersByLevelAndExp()
+    if(usuarios.length > 0) {
+        await deleteAllUsersRanking()
+        await createUserRanking(usuariosRanking)
+    }
+    console.log('Ranking updated');
 }
 
 export function criarIntervals() {
     //300000 = 5 minutos
     //60000 = 1 minutos
     const intervalTime = 300000
-    setInterval(updateRanking, intervalTime);
-    setInterval(updateLives, intervalTime);
+    setInterval(updateLivesAndRanking, intervalTime)
 }
