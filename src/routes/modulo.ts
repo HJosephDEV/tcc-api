@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import ModuloDTO from '../dto/moduloDTO';
-import { getModulo, getModulos, addModulo, updateModulo, deleteModulo, getIdModulosIniciados, getIdModulosFinalizados, verificarModuloExistente } from '../database/moduloDB'
+import { getModulo, getModulos, addModulo, updateModulo, deleteModulo, getIdModulosIniciados, getIdModulosFinalizados, verificarModuloExistente, getModulosIniciados } from '../database/moduloDB'
 import { getTarefasConcluidasFromModule } from '../database/tarefaDB'
 import { salvarModuloFeito, verificarModuloFeito } from '../database/moduloFeitoDB'
 import { verificarToken } from '../middleware/auth';
@@ -16,6 +16,22 @@ router.get('/modulos', async (req, res) => {
         try {
             const result = await getModulos()
             res.status(201).json({message: 'Modulos encontrado', data: result})
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({message: `Erro enquanto buscava os modulos: ${error}`})
+        }
+    } else {
+        res.status(401).json({ message: 'Token inválido' })
+    }
+});
+
+router.get('/modulos-iniciados', async (req, res) => {
+    const verificacao = verificarTokenRequest(req)
+    if (verificacao) {
+        try {
+            const idUser = verificacao['id']
+            const result = await getModulosIniciados(idUser)
+            res.status(201).json({message: 'Modulos que foram iniciados encontrado', data: result})
         } catch (error) {
             console.log(error)
             res.status(500).json({message: `Erro enquanto buscava os modulos: ${error}`})
