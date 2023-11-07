@@ -1,7 +1,7 @@
 import express, { Request } from 'express';
 import { IRouter } from 'express';
 import ModuloDTO from '../dto/moduloDTO';
-import { getModulo, getModulos, addModulo, updateModulo, deleteModulo, getModulosIniciados, verificarModuloExistente } from '../database/moduloDB'
+import { getModulo, getModulos, addModulo, updateModulo, deleteModulo, getIdModulosIniciados, getIdModulosFinalizados, verificarModuloExistente } from '../database/moduloDB'
 import { getTarefasConcluidasFromModule } from '../database/tarefaDB'
 import { salvarModuloFeito, verificarModuloFeito } from '../database/moduloFeitoDB'
 import { verificarToken } from '../middleware/auth';
@@ -25,13 +25,23 @@ router.get('/modulos', async (req, res) => {
     }
 });
 
-router.get('/modulos-iniciados', async (req, res) => {
+router.get('/modulos-curso', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
         try {
             const idUser = verificacao['id']
-            const result = await getModulosIniciados(idUser)
-            res.status(201).json({message: 'Modulos que foram iniciados encontrado', data: result})
+            const result = await getModulos()
+            var modulos: ModuloDTO[] = []
+            var modulosIniciados: ModuloDTO[] = []
+            var modulosFinalizados: ModuloDTO[] = []
+            if(result.length > 0) {
+                modulos = [...result]
+                var idIniciados = await getIdModulosIniciados(idUser)
+                var idFinalizados = await getIdModulosFinalizados(idUser)
+                modulosIniciados = [...result.filter((value) => idIniciados.some(elem => elem.id == value.id) == true)]
+                modulosFinalizados = [...result.filter((value) => idFinalizados.some(elem => elem.id == value.id) == true)]
+            }
+            res.status(201).json({message: 'Todos os modulos do curso', data: {modulos_disponiveis: modulos, modulos_em_andamento: modulosIniciados, modulos_finalizados: modulosFinalizados}})
         } catch (error) {
             console.log(error)
             res.status(500).json({message: `Erro enquanto buscava os modulos: ${error}`})

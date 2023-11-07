@@ -2,13 +2,14 @@ import express, { Request } from 'express';
 import { IRouter } from 'express';
 import RespostaDTO from '../dto/respostaDTO';
 import { getResposta, getRespostas, updateResposta, verificaRespostaPertenceTarefa } from '../database/respostaDB'
-import { getTarefa } from '../database/tarefaDB'
+import { getTarefa, getTarefasConcluidasFromModule } from '../database/tarefaDB'
 import { salvarTarefaFeita, verificarTarefaFeita } from '../database/tarefaFeitaDB'
 import { getUser, updateUser, updateVidas } from '../database/userDB'
 import { verificarToken } from '../middleware/auth';
 import UserDTO from '../dto/userDTO';
 import TarefaDTO from '../dto/tarefaDTO';
 import RetornoStatusUserDTO from '../dto/retornoStatusUserDTO';
+import { salvarModuloFeito, verificarModuloFeito } from '../database/moduloFeitoDB';
 
 const router: IRouter = express.Router();
 
@@ -96,6 +97,7 @@ router.post('/resposta/enviar', express.json(), async (req, res) => {
                 }
                 var upouNivel: RetornoStatusUserDTO = await ajustarExp(user, tarefa)
                 await salvarConclusaoTarefa(tarefa.id, user.id)
+                await verificarConclusaoModulo(tarefa.id_modulo, user.id)
                 if(tarefa.tipo == 1) {
                     var descricao = tarefa.conteudo
                     resposta.descricao.split(',').forEach(it => {
@@ -153,5 +155,17 @@ async function salvarConclusaoTarefa(tarefaId: String, usuarioId: String) {
     var result = await verificarTarefaFeita(tarefaId, usuarioId)
     if(result) {
         await salvarTarefaFeita(tarefaId, usuarioId)
+    }
+}
+
+async function verificarConclusaoModulo(moduloId: String, usuarioId: String) {
+    const modulo = await getTarefasConcluidasFromModule(moduloId)
+    const tarefasModulo = modulo['tarefas'] 
+    const tarefasConcluida = modulo['tarefa_feitas']
+    if(tarefasModulo != 0 && tarefasModulo == tarefasConcluida) {
+        var result = await verificarModuloFeito(moduloId, usuarioId)
+        if(result) {
+            await salvarModuloFeito(moduloId, usuarioId)
+        }
     }
 }
