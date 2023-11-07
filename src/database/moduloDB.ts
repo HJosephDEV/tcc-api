@@ -29,6 +29,36 @@ export async function getModulosIniciados(idUsuario: String) {
     }
 }
 
+export async function getIdModulosIniciados(idUsuario: String) {
+    const pool = await iniciarConexao()
+    try {
+        const query = 'SELECT m.id FROM MODULO m where (SELECT (COUNT(*) > 0) FROM tarefa_feita tf JOIN tarefa t ON tf.id_tarefa = t.id WHERE t.id_modulo = m.id and id_usuario = $1) = true and (SELECT (count(*) > 0) FROM modulo_feito mf WHERE mf.id_modulo = m.id AND mf.id_usuario = $1) = false'
+        const values = [idUsuario]
+        const result = await pool.query(query, values);
+        fecharConexao(pool)
+        return result.rows
+    } catch (error) {
+        console.log(error)
+        fecharConexao(pool)
+        throw error
+    }
+}
+
+export async function getIdModulosFinalizados(idUsuario: String) {
+    const pool = await iniciarConexao()
+    try {
+        const query = 'SELECT m.id FROM MODULO m where (SELECT (count(*) > 0) FROM modulo_feito mf WHERE mf.id_modulo = m.id AND mf.id_usuario = $1) = true'
+        const values = [idUsuario]
+        const result = await pool.query(query, values);
+        fecharConexao(pool)
+        return result.rows
+    } catch (error) {
+        console.log(error)
+        fecharConexao(pool)
+        throw error
+    }
+}
+
 export async function getModulo(id: String) {
     const pool = await iniciarConexao()
     try {
