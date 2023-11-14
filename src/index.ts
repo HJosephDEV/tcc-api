@@ -7,7 +7,7 @@ import 'module-alias/register';
 import moduleAlias from 'module-alias';
 import * as path from 'path';
 import router from './routes';
-import { criarIntervals } from './routes/user';
+import { updateUserDataAndRanking } from './database/functionDB';
 
 dotenv.config();
 
@@ -25,4 +25,22 @@ app.use(express.json());
 app.use(cors());
 app.use('/', router);
 
+//300000 = 5 minutos
+//60000 = 1 minutos
+const intervalTime = 300000
 criarIntervals()
+
+async function updateLivesAndRanking () {
+    try {
+        await updateUserDataAndRanking();
+        console.log('User lives and ranking updated');
+    } catch (error) {
+        console.error('Erro ao atualizar vidas e ranking:', error);
+    } finally {
+        setTimeout(updateLivesAndRanking, intervalTime);
+    }
+}
+
+export function criarIntervals() {
+    setTimeout(updateLivesAndRanking, intervalTime);
+}

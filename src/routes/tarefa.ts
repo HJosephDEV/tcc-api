@@ -16,44 +16,51 @@ const router: IRouter = express.Router();
 export default router;
 
 router.get('/tarefas', async (req, res) => {
-    const verificacao = verificarTokenRequest(req)
-    if (verificacao) {
-        try {
-            const idModulo = req.query['id_modulo']
-            if(idModulo == null || idModulo == undefined) {
-                res.status(403).json({message: 'Id do modulo não informado!'})
-                return
-            }
-            const tarefas: TarefaDTO[] = await getTarefasFiltrado(idModulo.toString())
-            if(tarefas == null || tarefas == undefined) {
-                res.status(403).json({message: 'Ocorreu um erro na busca de tarefas'})
-                return
-            }
-            if(tarefas.length > 0) {
-                for (let index = 0; index < tarefas.length; index++) {
-                    var element = tarefas[index];
-                    const respostaTarefa: RespostaDTO[] = await getRespostas(element.id.toString())
-                    if(respostaTarefa == null || respostaTarefa == undefined) {
-                        res.status(500).json({message: `Erro enquanto buscava as respostas da tarefa`})
-                        return
-                    }
-                    element.respostas = respostaTarefa
-                    if(element.tipo == 2) {
-                        for (let index = 0; index < element.respostas.length; index++) {
-                            const resposta = element.respostas[index];
-                            const imagem: ImagemDTO = await getImagem(resposta.descricao.toString())
-                            resposta.descricao = imagem.url
-                        }
+    const verificacao = verificarTokenRequest(req);
+    res.setTimeout(300000, () => {
+        res.sendStatus(408); // Código de status 408 - Request Timeout
+    });
+    try {
+        if (!verificacao) {
+            res.status(401).json({ message: 'Token inválido' });
+            return;
+        }
+
+        const idModulo = req.query['id_modulo'];
+        if (!idModulo) {
+            res.status(403).json({ message: 'Id do modulo não informado!' });
+            return;
+        }
+
+        const tarefas = await getTarefasFiltrado(idModulo.toString());
+
+        if (!tarefas) {
+            throw new Error('Ocorreu um erro na busca de tarefas');
+        }
+
+        if (tarefas.length > 0) {
+            for (const element of tarefas) {
+                const respostaTarefa = await getRespostas(element.id.toString());
+
+                if (!respostaTarefa) {
+                    throw new Error('Erro enquanto buscava as respostas da tarefa');
+                }
+
+                element.respostas = respostaTarefa;
+
+                if (element.tipo === 2) {
+                    for (const resposta of element.respostas) {
+                        const imagem = await getImagem(resposta.descricao.toString());
+                        resposta.descricao = imagem.url;
                     }
                 }
             }
-            res.status(201).json({message: 'Tarefas encontrado', data: tarefas})
-        } catch (error) {
-            console.log(error)
-            res.status(500).json({message: `Erro enquanto pegava todas as tarefas: ${error}`})
         }
-    } else {
-        res.status(401).json({ message: 'Token inválido' })
+
+        res.status(201).json({ message: 'Tarefas encontradas', data: tarefas });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ message: `Erro: ${error}` });
     }
 });
 
