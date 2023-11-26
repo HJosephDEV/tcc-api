@@ -160,7 +160,7 @@ router.delete('/modulo', async (req, res) => {
     }
 });
 
-router.put('/modulo/verificar-conclusao', async (req, res) => {
+/*router.put('/modulo/verificar-conclusao', async (req, res) => {
     const verificacao = verificarTokenRequest(req)
     if (verificacao) {
         try {
@@ -187,7 +187,7 @@ router.put('/modulo/verificar-conclusao', async (req, res) => {
     } else {
         res.status(401).json({ message: 'Token inválido' })
     }
-});
+});*/
 
 function verificarTokenRequest(req: Request) {
     try {

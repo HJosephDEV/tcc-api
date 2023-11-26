@@ -42,12 +42,12 @@ export async function getTarefasFromModule(idUser: String, idModule: String) {
     }
 }
 
-export async function getTarefasConcluidasFromModule(id: String) {
+export async function getTarefasConcluidasFromModule(id: String, idUser: String) {
     const pool = await iniciarConexao()
     try {
         const query = 'select (select count(*) from tarefa as tar where id_modulo = $1) as tarefas,' +
-        '(select count(*) from tarefa as tar inner join tarefa_feita as tarf on tar.id = tarf.id_tarefa where id_modulo = $1) as tarefa_feitas;'
-        const result = await pool.query(query, [id]);
+        '(select count(*) from tarefa as tar inner join tarefa_feita as tarf on tar.id = tarf.id_tarefa where id_modulo = $1 and tarf.id_usuario = $2) as tarefa_feitas;'
+        const result = await pool.query(query, [id, idUser]);
         fecharConexao(pool)
         return result.rows[0]
     } catch (error) {

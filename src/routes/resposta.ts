@@ -159,7 +159,7 @@ async function salvarConclusaoTarefa(tarefaId: String, usuarioId: String) {
 }
 
 async function verificarConclusaoModulo(moduloId: String, usuarioId: String) {
-    const modulo = await getTarefasConcluidasFromModule(moduloId)
+    const modulo = await getTarefasConcluidasFromModule(moduloId, usuarioId)
     const tarefasModulo = modulo['tarefas'] 
     const tarefasConcluida = modulo['tarefa_feitas']
     if(tarefasModulo != 0 && tarefasModulo == tarefasConcluida) {
